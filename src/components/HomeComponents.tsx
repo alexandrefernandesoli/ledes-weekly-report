@@ -60,7 +60,7 @@ export const LoginContainer = styled('div', {
   justifyContent: 'center',
 });
 
-export const LoginItems = styled('div', {
+export const LoginItems = styled('form', {
   display: 'flex',
   flexDirection: 'column',
   width: '50%',
@@ -97,16 +97,16 @@ export const Input = (props: any) => {
       <FontAwesomeIcon color="#00000088" width={14} icon={props.icon} />
       <InputField
         type={props.type}
-        name={props.name}
-        value={props.value}
         placeholder={props.placeholder}
+        {...props.register}
       />
     </InputContainer>
   );
 };
 
 export const Button = styled('button', {
-  fontWeight: 'lighter',
+  fontWeight: 500,
+  textTransform: 'uppercase',
   cursor: 'pointer',
   fontSize: '24px',
   border: 'none',

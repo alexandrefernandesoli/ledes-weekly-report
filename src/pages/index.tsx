@@ -19,8 +19,23 @@ import {
   faLock,
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { SubmitHandler, useForm } from 'react-hook-form';
+import { useRouter } from 'next/router';
+
+type Inputs = {
+  email: string;
+  password: string;
+};
 
 const Home: NextPage = () => {
+  const { handleSubmit, register } = useForm<Inputs>();
+  const router = useRouter();
+
+  const handleLoginSubmit: SubmitHandler<Inputs> = (data) => {
+    router.push('/main');
+    console.log(data);
+  };
+
   return (
     <>
       <Head>
@@ -67,18 +82,22 @@ const Home: NextPage = () => {
         </HomeContainer>
 
         <LoginContainer>
-          <LoginItems>
+          <LoginItems onSubmit={handleSubmit(handleLoginSubmit)}>
             <LoginTitle>Entrar</LoginTitle>
 
             <Input
               icon={faEnvelope}
-              name="email"
               type="text"
               placeholder="Email"
-              required
+              register={register('email', { required: true })}
             />
-            <Input icon={faLock} type="password" placeholder="Senha" required />
-            <Button type="submit">Conecte-se</Button>
+            <Input
+              icon={faLock}
+              type="password"
+              placeholder="Senha"
+              register={register('password', { required: true })}
+            />
+            <Button type="submit">Acessar</Button>
             <Link href="#">Esqueceu sua senha?</Link>
           </LoginItems>
         </LoginContainer>
