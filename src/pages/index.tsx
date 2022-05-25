@@ -7,11 +7,11 @@ import {
   LoginItems,
   Input,
   LoginTitle,
-  Button,
   Link,
   Title,
   HomeContent,
 } from '../components/HomeComponents';
+import { Button } from '../components/Button';
 import {
   faEnvelopesBulk,
   faCheck,

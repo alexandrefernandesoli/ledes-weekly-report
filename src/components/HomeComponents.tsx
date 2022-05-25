@@ -104,19 +104,6 @@ export const Input = (props: any) => {
   );
 };
 
-export const Button = styled('button', {
-  fontWeight: 500,
-  textTransform: 'uppercase',
-  cursor: 'pointer',
-  fontSize: '24px',
-  border: 'none',
-  backgroundColor: 'black',
-  color: 'white',
-  padding: '4px',
-  borderRadius: '10px',
-  margin: '12px 0',
-});
-
 export const Link = styled('a', {
   fontWeight: 'bold',
   opacity: 0.8,
