@@ -59,7 +59,10 @@ export const LoginContainer = styled('div', {
   alignItems: 'center',
   justifyContent: 'center',
 });
-
+export const LinksContainer = styled('div', {
+  display: 'flex',
+  justifyContent: 'space-between',
+});
 export const LoginItems = styled('form', {
   display: 'flex',
   flexDirection: 'column',

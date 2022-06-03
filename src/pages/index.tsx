@@ -10,6 +10,7 @@ import {
   Link,
   Title,
   HomeContent,
+  LinksContainer,
 } from '../components/HomeComponents';
 import { Button } from '../components/Button';
 import {
@@ -36,6 +37,10 @@ const Home: NextPage = () => {
     console.log(data);
   };
 
+  // const handleLoginSubmit: SubmitHandler<Inputs> = (data) => {
+  //   router.push('/register')
+  //   console.log(data)
+  // }
   return (
     <>
       <Head>
@@ -98,7 +103,10 @@ const Home: NextPage = () => {
               register={register('password', { required: true })}
             />
             <Button type="submit">Acessar</Button>
-            <Link href="#">Esqueceu sua senha?</Link>
+            <LinksContainer>
+              <Link href="#">Esqueceu sua senha?</Link>
+              <Link href="$">Criar conta</Link>
+            </LinksContainer>
           </LoginItems>
         </LoginContainer>
       </Container>
