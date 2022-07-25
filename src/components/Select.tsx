@@ -135,8 +135,8 @@ export const SelectDemo = ({ items }: { items: string[] }) => {
         </SelectScrollUpButton>
 
         <SelectViewport>
-          {items.map((item) => (
-            <SelectItem value={item}>
+          {items.map((item, index) => (
+            <SelectItem value={item} key={index}>
               <SelectItemText>{item}</SelectItemText>
               <SelectItemIndicator>
                 <CgCheck />
