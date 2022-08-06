@@ -1,62 +1,14 @@
 import { styled } from '@stitches/react';
-import Image from 'next/image';
-import defaultAvatar from '../../assets/default-avatar-300x300.png';
 import * as CollapsiblePrimitive from '@radix-ui/react-collapsible';
-import * as Avatar from '@radix-ui/react-avatar';
 import { useState } from 'react';
 import { Button } from '../../components/Button';
 import { useForm } from 'react-hook-form';
 import Head from 'next/head';
-import {
-  FaAngleDown,
-  FaAngleUp,
-  FaTimes,
-  FaPlusCircle,
-  FaMailBulk,
-} from 'react-icons/fa';
-import { Title } from '../../components/HomeComponents';
+import { FaAngleDown, FaAngleUp, FaTimes, FaPlusCircle } from 'react-icons/fa';
 import SelectDemo from '../../components/Select';
+import { Header } from '../../components';
 
-const StyledAvatar = styled(Avatar.Root, {
-  display: 'inline-flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  verticalAlign: 'middle',
-  overflow: 'hidden',
-  userSelect: 'none',
-  width: 45,
-  height: 45,
-  borderRadius: '100%',
-});
-
-const StyledImage = styled(Avatar.Image, {
-  width: '100%',
-  height: '100%',
-  objectFit: 'cover',
-  borderRadius: 'inherit',
-});
-
-const StyledFallback = styled(Avatar.Fallback, {
-  width: '100%',
-  height: '100%',
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  backgroundColor: 'rgba(0,0,0,0.02)',
-  color: '#3fb0ac',
-  fontSize: 15,
-  lineHeight: 1,
-  fontWeight: 500,
-});
-
-const Header = styled('header', {
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'space-between',
-  height: '65px',
-  padding: '12px',
-  boxShadow: '0 0 1px rgba(0, 0, 0, 0.4)',
-});
+const Flex = styled('div', { display: 'flex' });
 
 const MainContainer = styled('main', {
   display: 'grid',
@@ -78,8 +30,6 @@ const ContentContainer = styled('div', {
   padding: '24px',
 });
 
-const Flex = styled('div', { display: 'flex' });
-
 const CollapsibleContent = styled(CollapsiblePrimitive.CollapsibleContent, {
   overflow: 'hidden',
 });
@@ -91,21 +41,6 @@ const StyledForm = styled('form', {
 const List = styled('ul', {
   listStyle: 'inside',
 });
-
-const HeaderComponent = () => {
-  return (
-    <Header>
-      <Flex css={{ justifyContent: 'center', gap: 12 }}>
-        <FaMailBulk size={48} color="#3fb0ac" />
-        Ledes Weekly <br /> Report
-      </Flex>
-      <StyledAvatar>
-        <StyledImage />
-        <StyledFallback>AF</StyledFallback>
-      </StyledAvatar>
-    </Header>
-  );
-};
 
 const Main = () => {
   const [open, setOpen] = useState(false);
@@ -156,12 +91,12 @@ const Main = () => {
       <Head>
         <title>Ledes Weekly Report - Inicio</title>
       </Head>
-      <HeaderComponent />
+      <Header />
 
       <MainContainer>
         <LateralMenuContainer>
           <CollapsiblePrimitive.Collapsible open={open} onOpenChange={setOpen}>
-            <Flex>
+            <Flex css={{ alignItems: 'center' }}>
               <CollapsiblePrimitive.CollapsibleTrigger asChild>
                 {open ? <FaAngleUp /> : <FaAngleDown />}
               </CollapsiblePrimitive.CollapsibleTrigger>
@@ -262,10 +197,6 @@ const Main = () => {
       </MainContainer>
     </>
   );
-};
-
-const LateralMenu = () => {
-  return <></>;
 };
 
 export default Main;
