@@ -22,6 +22,9 @@ import {
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { useRouter } from 'next/router';
+import { Auth } from 'aws-amplify';
+import { useEffect, useState } from 'react';
+import { useAuth } from '../lib/AuthContext';
 
 type Inputs = {
   email: string;
@@ -29,18 +32,30 @@ type Inputs = {
 };
 
 const Home: NextPage = () => {
+  const [loading, setLoading] = useState(false);
   const { handleSubmit, register } = useForm<Inputs>();
   const router = useRouter();
+  const { signIn, setUser } = useAuth();
 
-  const handleLoginSubmit: SubmitHandler<Inputs> = (data) => {
+  useEffect(() => {
+    Auth.currentAuthenticatedUser()
+      .then((user) => {
+        router.push('/main');
+        setUser(user);
+      })
+      .catch((err) => {});
+  }, []);
+
+  const handleLoginSubmit: SubmitHandler<Inputs> = async (data) => {
+    if (loading) return;
+
+    setLoading(true);
+
+    await signIn(data.email, data.password).finally(() => setLoading(false));
+
     router.push('/main');
-    console.log(data);
   };
 
-  // const handleLoginSubmit: SubmitHandler<Inputs> = (data) => {
-  //   router.push('/register')
-  //   console.log(data)
-  // }
   return (
     <>
       <Head>

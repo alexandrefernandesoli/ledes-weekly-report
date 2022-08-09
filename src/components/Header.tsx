@@ -1,5 +1,7 @@
 import * as Avatar from '@radix-ui/react-avatar';
+import { useRouter } from 'next/router';
 import { FaMailBulk } from 'react-icons/fa';
+import { useAuth } from '../lib/AuthContext';
 import { styled } from '../stitches.config';
 
 const Flex = styled('div', { display: 'flex' });
@@ -46,16 +48,28 @@ const StyledHeader = styled('header', {
 });
 
 export const Header = () => {
+  const { signOut } = useAuth();
+  const router = useRouter();
+
+  const signOutHandler = async () => {
+    await signOut();
+
+    router.push('/');
+  };
+
   return (
     <StyledHeader>
       <Flex css={{ justifyContent: 'center', gap: 12 }}>
         <FaMailBulk size={48} color="#3fb0ac" />
         Ledes Weekly <br /> Report
       </Flex>
-      <StyledAvatar>
-        <StyledImage />
-        <StyledFallback>AF</StyledFallback>
-      </StyledAvatar>
+      <div>
+        <StyledAvatar>
+          <StyledImage />
+          <StyledFallback>AF</StyledFallback>
+        </StyledAvatar>
+        <button onClick={signOutHandler}>Sair</button>
+      </div>
     </StyledHeader>
   );
 };

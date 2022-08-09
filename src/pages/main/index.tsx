@@ -7,6 +7,10 @@ import Head from 'next/head';
 import { FaAngleDown, FaAngleUp, FaTimes, FaPlusCircle } from 'react-icons/fa';
 import SelectDemo from '../../components/Select';
 import { Header } from '../../components';
+import { useEffect } from 'react';
+import { useAuth } from '../../lib/AuthContext';
+import { Auth, withSSRContext } from 'aws-amplify';
+import Router, { useRouter } from 'next/router';
 
 const Flex = styled('div', { display: 'flex' });
 
@@ -43,7 +47,10 @@ const List = styled('ul', {
 });
 
 const Main = () => {
+  const router = useRouter();
   const [open, setOpen] = useState(false);
+  const { user, setUser } = useAuth();
+
   const [projects, setProjects] = useState([
     'Projeto 1',
     'Projeto 2',
@@ -63,6 +70,17 @@ const Main = () => {
       content: '',
     },
   ]);
+
+  useEffect(() => {
+    Auth.currentAuthenticatedUser()
+      .then((user) => {
+        router.push('/main');
+        setUser(user);
+      })
+      .catch((err) => {
+        Router.push('/');
+      });
+  }, []);
 
   const defaultValues = {} as any;
 
