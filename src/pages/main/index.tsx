@@ -1,16 +1,14 @@
 import { styled } from '@stitches/react';
 import * as CollapsiblePrimitive from '@radix-ui/react-collapsible';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Button } from '../../components/Button';
 import { useForm } from 'react-hook-form';
 import Head from 'next/head';
 import { FaAngleDown, FaAngleUp, FaTimes, FaPlusCircle } from 'react-icons/fa';
 import SelectDemo from '../../components/Select';
 import { Header } from '../../components';
-import { useEffect } from 'react';
-import { useAuth } from '../../lib/AuthContext';
-import { Auth, withSSRContext } from 'aws-amplify';
 import Router, { useRouter } from 'next/router';
+import { useAuth } from '../../lib/AuthContext';
 
 const Flex = styled('div', { display: 'flex' });
 
@@ -47,9 +45,13 @@ const List = styled('ul', {
 });
 
 const Main = () => {
+  const { authUser, loading } = useAuth();
   const router = useRouter();
   const [open, setOpen] = useState(false);
-  const { user, setUser } = useAuth();
+
+  useEffect(() => {
+    if (!loading && !authUser) router.push('/');
+  }, [authUser, loading]);
 
   const [projects, setProjects] = useState([
     'Projeto 1',
@@ -70,17 +72,6 @@ const Main = () => {
       content: '',
     },
   ]);
-
-  useEffect(() => {
-    Auth.currentAuthenticatedUser()
-      .then((user) => {
-        router.push('/main');
-        setUser(user);
-      })
-      .catch((err) => {
-        Router.push('/');
-      });
-  }, []);
 
   const defaultValues = {} as any;
 

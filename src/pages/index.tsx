@@ -22,7 +22,6 @@ import {
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { useRouter } from 'next/router';
-import { Auth } from 'aws-amplify';
 import { useEffect, useState } from 'react';
 import { useAuth } from '../lib/AuthContext';
 
@@ -35,16 +34,11 @@ const Home: NextPage = () => {
   const [loading, setLoading] = useState(false);
   const { handleSubmit, register } = useForm<Inputs>();
   const router = useRouter();
-  const { signIn, setUser } = useAuth();
+  const { signIn, authUser, loading: authLoading } = useAuth();
 
   useEffect(() => {
-    Auth.currentAuthenticatedUser()
-      .then((user) => {
-        router.push('/main');
-        setUser(user);
-      })
-      .catch((err) => {});
-  }, []);
+    if (!authLoading && authUser) router.push('/main');
+  }, [authUser, authLoading]);
 
   const handleLoginSubmit: SubmitHandler<Inputs> = async (data) => {
     if (loading) return;
