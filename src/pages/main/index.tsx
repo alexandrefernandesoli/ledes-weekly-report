@@ -9,6 +9,9 @@ import SelectDemo from '../../components/Select';
 import { Header } from '../../components';
 import Router, { useRouter } from 'next/router';
 import { useAuth } from '../../lib/AuthContext';
+import { child, get, ref } from 'firebase/database';
+import { database } from '../../lib/firebaseConfig';
+import { auth } from 'firebase-admin';
 
 const Flex = styled('div', { display: 'flex' });
 
@@ -107,9 +110,17 @@ const Main = () => {
           <CollapsiblePrimitive.Collapsible open={open} onOpenChange={setOpen}>
             <Flex css={{ alignItems: 'center' }}>
               <CollapsiblePrimitive.CollapsibleTrigger asChild>
-                {open ? <FaAngleUp /> : <FaAngleDown />}
+                {open ? (
+                  <Flex css={{ alignItems: 'center' }}>
+                    <FaAngleUp />
+                  </Flex>
+                ) : (
+                  <Flex css={{ alignItems: 'center' }}>
+                    <FaAngleDown />
+                  </Flex>
+                )}
               </CollapsiblePrimitive.CollapsibleTrigger>
-              <span>Projetos Associados</span>
+              Projetos Associados
             </Flex>
 
             <CollapsibleContent>

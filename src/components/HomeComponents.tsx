@@ -1,4 +1,6 @@
 import { styled } from '@stitches/react';
+import { UseFormRegister, UseFormRegisterReturn } from 'react-hook-form';
+import { IconType } from 'react-icons';
 
 export const Container = styled('main', {
   height: '100vh',
@@ -58,21 +60,24 @@ export const LoginContainer = styled('div', {
   alignItems: 'center',
   justifyContent: 'center',
 });
+
 export const LinksContainer = styled('div', {
+  marginTop: '4px',
   display: 'flex',
   justifyContent: 'space-between',
 });
+
+export const LoginTitle = styled('h2', {
+  fontSize: '1.5rem',
+  fontWeight: '300',
+  color: 'white',
+  marginBottom: '24px',
+});
+
 export const LoginItems = styled('form', {
   display: 'flex',
   flexDirection: 'column',
   width: '50%',
-});
-
-export const LoginTitle = styled('h2', {
-  fontSize: '36px',
-  fontWeight: 'bold',
-  color: 'white',
-  marginBottom: '24px',
 });
 
 const InputContainer = styled('div', {
@@ -81,7 +86,6 @@ const InputContainer = styled('div', {
   backgroundColor: 'white',
   borderRadius: '10px',
   marginBottom: '12px',
-  paddingLeft: '12px',
 });
 
 export const InputField = styled('input', {
@@ -94,10 +98,24 @@ export const InputField = styled('input', {
   fontSize: '14px',
 });
 
-export const Input = ({ icon: Icon, type, placeholder, register }: any) => {
+export const Input = ({
+  icon: Icon,
+  type,
+  placeholder,
+  register,
+}: {
+  icon?: IconType;
+  type: string;
+  placeholder: string;
+  register: UseFormRegisterReturn;
+}) => {
   return (
     <InputContainer>
-      <Icon size={16} color={'#00000088'} />
+      {Icon ? (
+        <Icon size={16} style={{ marginLeft: '12px' }} color={'#00000088'} />
+      ) : (
+        <></>
+      )}
       <InputField type={type} placeholder={placeholder} {...register} />
     </InputContainer>
   );

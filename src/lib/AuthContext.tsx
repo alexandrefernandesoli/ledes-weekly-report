@@ -5,7 +5,7 @@ type AuthContextType = {
   authUser: FormattedUser | null;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<void>;
-  signUp: (email: string, password: string) => Promise<void>;
+  signUp: (name: string, email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
 };
 
@@ -13,7 +13,7 @@ const AuthContext = createContext<AuthContextType>({
   authUser: null,
   loading: true,
   signIn: async (email: string, password: string) => {},
-  signUp: async (email: string, password: string) => {},
+  signUp: async (name: string, email: string, password: string) => {},
   signOut: async () => {},
 });
 

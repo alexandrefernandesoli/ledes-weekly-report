@@ -91,7 +91,7 @@ const Home: NextPage = () => {
 
         <LoginContainer>
           <LoginItems onSubmit={handleSubmit(handleLoginSubmit)}>
-            <LoginTitle>Entrar</LoginTitle>
+            <LoginTitle>Você possui uma conta?</LoginTitle>
 
             <Input
               icon={FaEnvelope}
@@ -105,10 +105,12 @@ const Home: NextPage = () => {
               placeholder="Senha"
               register={register('password', { required: true })}
             />
-            <Button type="submit">Acessar</Button>
+            <Button type="submit" uppercase>
+              Conectar-se
+            </Button>
             <LinksContainer>
               <Link href="#">Esqueceu sua senha?</Link>
-              <Link href="/register">Criar conta</Link>
+              <Link href="/register">Não possuo uma conta</Link>
             </LinksContainer>
           </LoginItems>
         </LoginContainer>
