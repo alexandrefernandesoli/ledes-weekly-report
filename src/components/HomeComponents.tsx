@@ -1,4 +1,3 @@
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { styled } from '@stitches/react';
 
 export const Container = styled('main', {
@@ -78,6 +77,7 @@ export const LoginTitle = styled('h2', {
 
 const InputContainer = styled('div', {
   display: 'flex',
+  alignItems: 'center',
   backgroundColor: 'white',
   borderRadius: '10px',
   marginBottom: '12px',
@@ -94,15 +94,11 @@ export const InputField = styled('input', {
   fontSize: '14px',
 });
 
-export const Input = (props: any) => {
+export const Input = ({ icon: Icon, type, placeholder, register }: any) => {
   return (
     <InputContainer>
-      <FontAwesomeIcon color="#00000088" width={14} icon={props.icon} />
-      <InputField
-        type={props.type}
-        placeholder={props.placeholder}
-        {...props.register}
-      />
+      <Icon size={16} color={'#00000088'} />
+      <InputField type={type} placeholder={placeholder} {...register} />
     </InputContainer>
   );
 };
