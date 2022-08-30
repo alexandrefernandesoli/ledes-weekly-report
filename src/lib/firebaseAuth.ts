@@ -9,7 +9,7 @@ import {
 import {
   child,
   get,
-  getDatabase, ref, set
+  ref, set
 } from 'firebase/database'
 import './firebaseConfig';
 import { database } from './firebaseConfig';
