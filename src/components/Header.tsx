@@ -3,7 +3,7 @@ import * as Avatar from '@radix-ui/react-avatar';
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 import { keyframes } from '@stitches/react';
 import { useRouter } from 'next/router';
-import { CgLogOut } from 'react-icons/cg';
+import { CgLogOut, CgOptions } from 'react-icons/cg';
 import { FaMailBulk } from 'react-icons/fa';
 import { useAuth } from '../lib/AuthContext';
 import { styled } from '../stitches.config';
@@ -36,7 +36,7 @@ const StyledFallback = styled(Avatar.Fallback, {
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
-  backgroundColor: 'rgba(0,0,0,0.02)',
+  backgroundColor: 'rgba(0,0,0,0.03)',
   color: '#3fb0ac',
   fontSize: 15,
   lineHeight: 1,
@@ -109,6 +109,7 @@ const itemStyles = {
   position: 'relative',
   userSelect: 'none',
   cursor: 'pointer',
+  justifyContent: 'space-between',
 
   '&[data-disabled]': {
     color: mauve.mauve8,
@@ -151,9 +152,13 @@ export const Header = () => {
         </DropdownMenu.Trigger>
 
         <StyledContent>
+          <StyledItem>
+            Preferências
+            <CgOptions size={24} />
+          </StyledItem>
           <StyledItem onClick={signOutHandler}>
-            <CgLogOut size={24} />
             Sair
+            <CgLogOut size={24} />
           </StyledItem>
         </StyledContent>
       </DropdownMenu.Root>

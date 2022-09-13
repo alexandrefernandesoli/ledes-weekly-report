@@ -38,10 +38,9 @@ const Register = () => {
     }
 
     await signUp(data.name, data.email, data.password).finally(() => {
+      setLoading(false);
       router.push('/main');
     });
-
-    setLoading(false);
   };
 
   return (

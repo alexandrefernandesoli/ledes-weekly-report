@@ -1,5 +1,5 @@
 import React from 'react';
-import { styled } from '@stitches/react';
+import { styled } from '../stitches.config';
 import { violet, mauve, blackA } from '@radix-ui/colors';
 import { CgCheck, CgChevronDown, CgChevronUp } from 'react-icons/cg';
 import * as SelectPrimitive from '@radix-ui/react-select';
@@ -9,14 +9,14 @@ const StyledTrigger = styled(SelectPrimitive.SelectTrigger, {
   display: 'inline-flex',
   alignItems: 'center',
   justifyContent: 'center',
-  borderRadius: 4,
+  // borderRadius: 4,
   padding: '0 15px',
   fontSize: 13,
   lineHeight: 1,
   height: 35,
   gap: 5,
   backgroundColor: 'white',
-  color: violet.violet11,
+  color: '$primary',
   boxShadow: `0 2px 10px ${blackA.blackA7}`,
   '&:hover': { backgroundColor: mauve.mauve3 },
   '&:focus': { boxShadow: `0 0 0 2px black` },
@@ -25,7 +25,7 @@ const StyledTrigger = styled(SelectPrimitive.SelectTrigger, {
 const StyledContent = styled(SelectPrimitive.Content, {
   overflow: 'hidden',
   backgroundColor: 'white',
-  borderRadius: 6,
+  // borderRadius: 6,
   boxShadow:
     '0px 10px 38px -10px rgba(22, 23, 24, 0.35), 0px 10px 20px -15px rgba(22, 23, 24, 0.2)',
 });
@@ -38,8 +38,8 @@ const StyledItem = styled(SelectPrimitive.Item, {
   all: 'unset',
   fontSize: 13,
   lineHeight: 1,
-  color: violet.violet11,
-  borderRadius: 3,
+  color: '$primary',
+  // borderRadius: 3,
   display: 'flex',
   alignItems: 'center',
   height: 25,
@@ -53,8 +53,8 @@ const StyledItem = styled(SelectPrimitive.Item, {
   },
 
   '&:focus': {
-    backgroundColor: violet.violet9,
-    color: violet.violet1,
+    backgroundColor: '$primary',
+    color: 'white',
   },
 });
 

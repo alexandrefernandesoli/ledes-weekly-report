@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { database } from './firebaseConfig';
 import {
   getAuth,
   User,
@@ -6,25 +7,14 @@ import {
   signInWithEmailAndPassword,
   updateProfile,
 } from 'firebase/auth';
-import {
-  child,
-  get,
-  ref, set
-} from 'firebase/database'
-import './firebaseConfig';
-import { database } from './firebaseConfig';
+import { doc, setDoc, serverTimestamp, getDoc } from 'firebase/firestore';
 
 export type FormattedUser = {
   uid: string;
   email: string | null;
-  displayName: string | null,
+  displayName: string | null;
+  role: string;
 };
-
-const formatAuthUser = (user: User): FormattedUser => ({
-  uid: user.uid,
-  email: user.email,
-  displayName: user.displayName,
-});
 
 export function useFirebaseAuth() {
   const [authUser, setAuthUser] = useState<FormattedUser | null>(null);
@@ -39,21 +29,26 @@ export function useFirebaseAuth() {
     await signInWithEmailAndPassword(getAuth(), email, password);
   };
 
-  const signUp = async (name: string, email: string, password: string): Promise<void> => {
-    const auth = getAuth()
+  const signUp = async (
+    name: string,
+    email: string,
+    password: string
+  ): Promise<void> => {
+    const auth = getAuth();
 
-    await createUserWithEmailAndPassword(auth, email, password)
+    await createUserWithEmailAndPassword(auth, email, password);
 
-    if(auth.currentUser){
+    if (auth.currentUser) {
       updateProfile(auth.currentUser, {
-        displayName: name
+        displayName: name,
       }).then(() => {
-        set(ref(database, 'users/' + auth.currentUser!.uid + "/profile"), {
+        setDoc(doc(database, 'users', auth.currentUser!.uid), {
           name: auth.currentUser?.displayName,
           email: auth.currentUser?.email,
-          role: 0
-        })
-      })
+          role: 'STUDENT',
+          createdAt: serverTimestamp(),
+        });
+      });
     }
   };
 
@@ -65,29 +60,26 @@ export function useFirebaseAuth() {
       setLoading(false);
       return;
     }
-    
+
     let formattedUser = {
       uid: user.uid,
       email: user.email,
-      displayName: user.displayName
+      displayName: user.displayName,
+      role: 'STUDENT',
     };
 
     setLoading(true);
 
-    get(child(ref(database), `users/${user.uid}`))
-    .then((snapshot) => {
-      if (snapshot.exists()) {
-        console.log(snapshot.val());
+    const userRef = doc(database, 'users', user.uid);
+    const userSnap = await getDoc(userRef);
 
-        formattedUser.displayName = snapshot.val().profile.name
-      } else {
-        console.log('Sem dados');
-      }
-    })
-    .catch((err) => {
-      console.log("erro aqui", err);
-    });
-    
+    if (userSnap.exists()) {
+      formattedUser.displayName = userSnap.data().name;
+      formattedUser.role = userSnap.data().role;
+    } else {
+      console.log('Sem dados de usuário no database');
+    }
+
     setAuthUser(formattedUser);
     setLoading(false);
   };

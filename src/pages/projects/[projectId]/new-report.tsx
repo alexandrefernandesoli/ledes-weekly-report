@@ -1,105 +1,41 @@
 import { styled } from '@stitches/react';
 import * as CollapsiblePrimitive from '@radix-ui/react-collapsible';
 import { useEffect, useState } from 'react';
-import { Button } from '../../components/Button';
+import { Button } from '../../../components/Button';
 import { useForm } from 'react-hook-form';
 import Head from 'next/head';
-import { FaAngleDown, FaAngleUp, FaTimes, FaPlusCircle } from 'react-icons/fa';
-import SelectDemo from '../../components/Select';
-import { Header } from '../../components';
-import Router, { useRouter } from 'next/router';
-import { useAuth } from '../../lib/AuthContext';
-import { child, set, ref, push } from 'firebase/database';
-import { database } from '../../lib/firebaseConfig';
+import { FaTimes, FaPlusCircle } from 'react-icons/fa';
+import {
+  ContentContainer,
+  Flex,
+  Header,
+  LateralMenu,
+  MainContainer,
+} from '../../../components';
+import { useRouter } from 'next/router';
+import { useAuth } from '../../../lib/AuthContext';
+import { database } from '../../../lib/firebaseConfig';
+import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
 
-const Flex = styled('div', { display: 'flex' });
-
-const MainContainer = styled('main', {
-  display: 'grid',
-  gridTemplateColumns: '250px 1fr',
-  minHeight: 'calc(100vh - 65px)',
-});
-
-const LateralMenuContainer = styled('div', {
-  display: 'flex',
-  flexDirection: 'column',
-  padding: '12px',
-});
-
-const ContentContainer = styled('div', {
-  display: 'flex',
-  flexDirection: 'column',
-  alignItems: 'center',
-  backgroundColor: '#3fb0ac',
-  padding: '24px',
-});
-
-const CollapsibleContent = styled(CollapsiblePrimitive.CollapsibleContent, {
-  overflow: 'hidden',
+const TaskLabel = styled('label', {
+  color: '$primary',
+  width: '16px',
 });
 
 const StyledForm = styled('form', {
   width: '100%',
+  padding: '0 12px',
 });
 
-const List = styled('ul', {
-  listStyle: 'inside',
-});
-
-const LateralMenu = ({ projects }: { projects: string[] }) => {
-  const [open, setOpen] = useState(false);
-
-  return (
-    <LateralMenuContainer>
-      <CollapsiblePrimitive.Collapsible open={open} onOpenChange={setOpen}>
-        <Flex css={{ alignItems: 'center' }}>
-          <CollapsiblePrimitive.CollapsibleTrigger asChild>
-            {open ? (
-              <Flex css={{ alignItems: 'center' }}>
-                <FaAngleUp />
-              </Flex>
-            ) : (
-              <Flex css={{ alignItems: 'center' }}>
-                <FaAngleDown />
-              </Flex>
-            )}
-          </CollapsiblePrimitive.CollapsibleTrigger>
-          Projetos Associados
-        </Flex>
-
-        <CollapsibleContent>
-          <List css={{ paddingLeft: 20 }}>
-            {projects.map((project, i) => (
-              <li key={i}>{project}</li>
-            ))}
-          </List>
-        </CollapsibleContent>
-      </CollapsiblePrimitive.Collapsible>
-    </LateralMenuContainer>
-  );
-};
-
-const Main = () => {
+const NewReport = () => {
   const { authUser, loading } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
     if (!loading && !authUser) router.push('/');
+
+    console.log(router.query);
   }, [authUser, loading]);
-
-  const registerNewProject = () => {
-    const newProjectKey = push(child(ref(database), 'projects')).key;
-
-    set(ref(database, 'projects/' + newProjectKey), {
-      name: 'Projeto 1',
-    });
-  };
-
-  const [projects, setProjects] = useState([
-    'Projeto 1',
-    'Projeto 2',
-    'Projeto 3',
-  ]);
 
   const [tasks, setTasks] = useState([
     {
@@ -134,8 +70,23 @@ const Main = () => {
     setTasks([...tasks, { id: tasks.length + 1, content: '' }]);
   };
 
-  const onSubmitForm = (data: any) => {
-    console.log(data);
+  const onSubmitForm = async (data: any) => {
+    let content = '';
+
+    for (let key in data) {
+      content = content + data[key] + '\n';
+    }
+
+    const docRef = await addDoc(collection(database, 'reports'), {
+      content,
+      submittedAt: serverTimestamp(),
+      userId: authUser?.uid,
+      projectId: router.query.projectId,
+    });
+
+    router.back();
+
+    console.log('Relatório adicionado no id: ', docRef.id);
   };
 
   return (
@@ -146,18 +97,12 @@ const Main = () => {
       <Header />
 
       <MainContainer>
-        <LateralMenu projects={projects} />
+        <LateralMenu />
 
         <ContentContainer>
-          <Button onClick={registerNewProject}>Novo projeto</Button>
           <StyledForm onSubmit={handleSubmit(onSubmitForm)}>
             <Flex css={{ color: 'white', justifyContent: 'center' }}>
               <h1>Novo relatório</h1>
-            </Flex>
-
-            <Flex css={{ alignItems: 'center', gap: 12 }}>
-              <label htmlFor="targetInput">Para: </label>
-              <SelectDemo items={projects} />
             </Flex>
 
             <p>Tarefas realizadas:</p>
@@ -181,24 +126,23 @@ const Main = () => {
                 >
                   <Flex
                     css={{
-                      width: '16px',
-                      justifyContent: 'start',
-                      color: 'black',
-                    }}
-                  >
-                    <label htmlFor={'targetInput' + task.id}>{i + 1}.</label>
-                  </Flex>
-                  <Flex
-                    css={{
                       background: 'white',
                       alignItems: 'center',
+                      borderRadius: 6,
                       justifyContent: 'center',
+                      padding: '4px 8px',
                       flex: 1,
                     }}
                   >
+                    <TaskLabel htmlFor={'targetInput' + task.id}>
+                      {i + 1}.
+                    </TaskLabel>
                     <input
                       style={{
+                        borderRadius: 6,
+                        backgroundColor: 'rgba(63, 176, 172, 0.1)',
                         padding: '4px 8px',
+                        margin: '0 4px',
                         border: 'none',
                         outline: 'none',
                         fontSize: '16px',
@@ -208,7 +152,12 @@ const Main = () => {
                       type="text"
                       {...register('input-' + task.id)}
                     />
-                    <FaTimes onClick={() => removeTask(i)} size={16} />
+                    <FaTimes
+                      color="rgba(63, 176, 172, 0.7)"
+                      style={{ cursor: 'pointer' }}
+                      onClick={() => removeTask(i)}
+                      size={16}
+                    />
                   </Flex>
                 </Flex>
               ))}
@@ -236,4 +185,4 @@ const Main = () => {
   );
 };
 
-export default Main;
+export default NewReport;
