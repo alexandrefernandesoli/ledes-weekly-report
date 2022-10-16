@@ -29,7 +29,6 @@ export const HomeContent = styled('div', {
   marginTop: '48px',
   display: 'flex',
   flexDirection: 'column',
-  height: '100%',
   alignItems: 'center',
 
   '& h3': {

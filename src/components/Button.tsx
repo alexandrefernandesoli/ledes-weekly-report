@@ -1,19 +1,26 @@
-import { styled } from '@stitches/react';
+import clsx from 'clsx';
+import { ButtonHTMLAttributes, ReactNode } from 'react';
 
-export const Button = styled('button', {
-  fontWeight: 400,
-  cursor: 'pointer',
-  border: 'none',
-  backgroundColor: 'black',
-  color: 'white',
-  padding: '8px 12px',
-  borderRadius: '10px',
+interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+  uppercase?: boolean;
+  children: ReactNode;
+}
 
-  variants: {
-    uppercase: {
-      true: {
-        textTransform: 'uppercase',
-      },
-    },
-  },
-});
+export function Button({
+  uppercase,
+  children,
+  className,
+  ...props
+}: ButtonProps) {
+  return (
+    <button
+      className={clsx(
+        'w-full cursor-pointer bg-gray-900 text-white py-2 px-3 rounded-lg hover:bg-gray-800 transition-colors',
+        className
+      )}
+      {...props}
+    >
+      {children}
+    </button>
+  );
+}

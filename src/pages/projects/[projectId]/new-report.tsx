@@ -1,5 +1,4 @@
 import { styled } from '@stitches/react';
-import * as CollapsiblePrimitive from '@radix-ui/react-collapsible';
 import { useEffect, useState } from 'react';
 import { Button } from '../../../components/Button';
 import { useForm } from 'react-hook-form';
@@ -13,9 +12,9 @@ import {
   MainContainer,
 } from '../../../components';
 import { useRouter } from 'next/router';
-import { useAuth } from '../../../lib/AuthContext';
-import { database } from '../../../lib/firebaseConfig';
-import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
+import axios from 'axios';
+import { withPageAuth } from '@supabase/auth-helpers-nextjs';
+import { TextInput } from '../../../components/TextInput';
 
 const TaskLabel = styled('label', {
   color: '$primary',
@@ -28,14 +27,7 @@ const StyledForm = styled('form', {
 });
 
 const NewReport = () => {
-  const { authUser, loading } = useAuth();
   const router = useRouter();
-
-  useEffect(() => {
-    if (!loading && !authUser) router.push('/');
-
-    console.log(router.query);
-  }, [authUser, loading]);
 
   const [tasks, setTasks] = useState([
     {
@@ -77,16 +69,14 @@ const NewReport = () => {
       content = content + data[key] + '\n';
     }
 
-    const docRef = await addDoc(collection(database, 'reports'), {
+    const { data: response } = await axios.post('/api/reports', {
       content,
-      submittedAt: serverTimestamp(),
-      userId: authUser?.uid,
       projectId: router.query.projectId,
     });
 
     router.back();
 
-    console.log('Relatório adicionado no id: ', docRef.id);
+    console.log(response.report);
   };
 
   return (
@@ -96,93 +86,54 @@ const NewReport = () => {
       </Head>
       <Header />
 
-      <MainContainer>
+      <main className="flex w-full min-h-[calc(100%-64px)]">
         <LateralMenu />
 
-        <ContentContainer>
-          <StyledForm onSubmit={handleSubmit(onSubmitForm)}>
-            <Flex css={{ color: 'white', justifyContent: 'center' }}>
-              <h1>Novo relatório</h1>
-            </Flex>
+        <div className="flex flex-1 bg-primary px-6">
+          <form
+            className="flex flex-col w-full text-gray-100"
+            onSubmit={handleSubmit(onSubmitForm)}
+          >
+            <h1 className="mt-6 mb-4 text-2xl">Novo relatório</h1>
 
-            <p>Tarefas realizadas:</p>
+            <p>
+              Digite suas tarefas realizadas, para novas tarefas use o botão no
+              final da lista.
+            </p>
 
-            <Flex
-              css={{
-                width: '100%',
-                flexDirection: 'column',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-            >
+            <div className="flex flex-col gap-2 mt-2">
               {tasks.map((task, i) => (
-                <Flex
-                  css={{
-                    marginBottom: '4px',
-                    alignItems: 'center',
-                    width: '100%',
-                  }}
-                  key={task.id}
-                >
-                  <Flex
-                    css={{
-                      background: 'white',
-                      alignItems: 'center',
-                      borderRadius: 6,
-                      justifyContent: 'center',
-                      padding: '4px 8px',
-                      flex: 1,
-                    }}
-                  >
-                    <TaskLabel htmlFor={'targetInput' + task.id}>
-                      {i + 1}.
-                    </TaskLabel>
-                    <input
-                      style={{
-                        borderRadius: 6,
-                        backgroundColor: 'rgba(63, 176, 172, 0.1)',
-                        padding: '4px 8px',
-                        margin: '0 4px',
-                        border: 'none',
-                        outline: 'none',
-                        fontSize: '16px',
-                        resize: 'none',
-                        width: '100%',
-                      }}
-                      type="text"
-                      {...register('input-' + task.id)}
-                    />
-                    <FaTimes
-                      color="rgba(63, 176, 172, 0.7)"
-                      style={{ cursor: 'pointer' }}
-                      onClick={() => removeTask(i)}
-                      size={16}
-                    />
-                  </Flex>
-                </Flex>
+                <TextInput.Root key={task.id}>
+                  <TaskLabel htmlFor={'targetInput' + task.id}>
+                    {i + 1}.
+                  </TaskLabel>
+                  <TextInput.Input
+                    className="flex-1"
+                    register={register('input-' + task.id)}
+                  />
+                  <FaTimes
+                    className="text-primary"
+                    onClick={() => removeTask(i)}
+                  />
+                </TextInput.Root>
               ))}
-              <Flex
-                css={{ cursor: 'pointer', padding: 8 }}
+              <div
+                className="bg-gray-100 h-11 rounded-lg cursor-pointer flex items-center justify-center mb-4"
                 onClick={() => newTask()}
               >
-                <FaPlusCircle color="#fff" size={22} />
-              </Flex>
-              <Button
-                type="submit"
-                css={{
-                  fontSize: '18px',
-                  fontWeight: 300,
-                  width: '300px',
-                }}
-              >
-                Submeter
-              </Button>
-            </Flex>
-          </StyledForm>
-        </ContentContainer>
-      </MainContainer>
+                <FaPlusCircle className="text-primary text-3xl" />
+              </div>
+              <Button type="submit">Enviar relatório</Button>
+            </div>
+          </form>
+        </div>
+      </main>
     </>
   );
 };
+
+export const getServerSideProps = withPageAuth({
+  redirectTo: '/login',
+});
 
 export default NewReport;

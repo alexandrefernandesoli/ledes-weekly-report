@@ -1,14 +1,22 @@
-import { useRouter } from 'next/router';
-import { useEffect } from 'react';
+import { GetServerSidePropsContext } from 'next';
 
 const Projects = () => {
-  const router = useRouter();
-
-  useEffect(() => {
-    if (!router.query.projectId) router.push('/main');
-  });
-
   return <></>;
 };
+
+export async function getServerSideProps(ctx: GetServerSidePropsContext) {
+  if (!ctx.params?.projectId) {
+    return {
+      redirect: {
+        destination: '/',
+        permanent: false,
+      },
+    };
+  }
+
+  return {
+    props: {},
+  };
+}
 
 export default Projects;

@@ -1,16 +1,6 @@
-import {
-  collection,
-  DocumentData,
-  getDocs,
-  query,
-  QueryDocumentSnapshot,
-  SnapshotOptions,
-  where,
-  WithFieldValue,
-} from 'firebase/firestore';
+import { useUser } from '@supabase/auth-helpers-react';
+import axios from 'axios';
 import { createContext, useContext, useEffect, useState } from 'react';
-import { useAuth } from './AuthContext';
-import { database } from './firebaseConfig';
 
 export type ProjectType = {
   id: string;
@@ -28,62 +18,22 @@ const DataContext = createContext({
   setIsLateralMenuOpen: null as any,
 });
 
-const projectConverter = {
-  toFirestore: (project: WithFieldValue<ProjectType>): DocumentData => {
-    return {
-      id: project.id,
-      name: project.name,
-      description: project.description,
-      users: project.users,
-      createdAt: Date,
-    };
-  },
-  fromFirestore: (
-    snapshot: QueryDocumentSnapshot,
-    options: SnapshotOptions
-  ) => {
-    const data = snapshot.data(options);
-    return {
-      id: snapshot.id,
-      name: data.name,
-      description: data.description,
-      users: data.users,
-      createdAt: data.createdAt.toDate(),
-    } as ProjectType;
-  },
-};
-
 export function DataProvider({ children }: { children: React.ReactNode }) {
   const [isLateralMenuOpen, setIsLateralMenuOpen] = useState(false);
   const [projects, setProjects] = useState([] as ProjectType[]);
-  const { authUser } = useAuth();
+  const { user } = useUser();
 
   useEffect(() => {
+    if (!user) return;
+
     const getUserProjects = async () => {
-      const newProjects = [] as ProjectType[];
+      const { data } = await axios.get('/api/projects');
 
-      if (authUser) {
-        const q = query(
-          collection(database, 'projects'),
-          where(`users.${authUser!.uid}`, 'in', ['SUPERVISOR', 'STUDENT'])
-        ).withConverter(projectConverter);
-
-        const querySnapshot = await getDocs(q);
-
-        querySnapshot.forEach((doc) => {
-          newProjects.push(doc.data());
-        });
-
-        newProjects.sort(
-          (a, b) => a.createdAt.getTime() - b.createdAt.getTime()
-        );
-
-        setProjects(newProjects);
-      }
+      setProjects(data.projects);
     };
 
     getUserProjects();
-  }, [authUser]);
+  }, [user]);
 
   return (
     <DataContext.Provider

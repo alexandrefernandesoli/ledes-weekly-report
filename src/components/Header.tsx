@@ -2,13 +2,11 @@ import { mauve, violet } from '@radix-ui/colors';
 import * as Avatar from '@radix-ui/react-avatar';
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 import { keyframes } from '@stitches/react';
+import { supabaseClient } from '@supabase/auth-helpers-nextjs';
 import { useRouter } from 'next/router';
 import { CgLogOut, CgOptions } from 'react-icons/cg';
 import { FaMailBulk } from 'react-icons/fa';
-import { useAuth } from '../lib/AuthContext';
 import { styled } from '../stitches.config';
-
-const Flex = styled('div', { display: 'flex' });
 
 const StyledAvatar = styled(Avatar.Root, {
   display: 'inline-flex',
@@ -43,15 +41,6 @@ const StyledFallback = styled(Avatar.Fallback, {
   fontWeight: 500,
 });
 
-const StyledHeader = styled('header', {
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'space-between',
-  height: '65px',
-  padding: '12px',
-  boxShadow: '0 0 1px rgba(0, 0, 0, 0.4)',
-});
-
 const slideUpAndFade = keyframes({
   '0%': { opacity: 0, transform: 'translateY(2px)' },
   '100%': { opacity: 1, transform: 'translateY(0)' },
@@ -73,10 +62,6 @@ const slideLeftAndFade = keyframes({
 });
 
 const contentStyles = {
-  minWidth: 60,
-  backgroundColor: 'white',
-  borderRadius: 6,
-  padding: 5,
   boxShadow:
     '0px 10px 38px -10px rgba(22, 23, 24, 0.35), 0px 10px 20px -15px rgba(22, 23, 24, 0.2)',
   '@media (prefers-reduced-motion: no-preference)': {
@@ -125,24 +110,23 @@ const itemStyles = {
 const StyledItem = styled(DropdownMenu.Item, { ...itemStyles });
 
 export const Header = () => {
-  const { signOut } = useAuth();
   const router = useRouter();
 
   const signOutHandler = async () => {
-    await signOut();
+    await supabaseClient.auth.signOut();
 
-    router.push('/');
+    router.replace('/login');
   };
 
   return (
-    <StyledHeader>
-      <Flex
-        css={{ justifyContent: 'center', gap: 12, cursor: 'pointer' }}
-        onClick={() => router.push('/main')}
+    <div className="flex bg-gray-50 justify-between items-center px-4 h-16 text-lg">
+      <div
+        className="flex gap-2 cursor-pointer items-center leading-5"
+        onClick={() => router.push('/')}
       >
         <FaMailBulk size={48} color="#3fb0ac" />
         Ledes Weekly <br /> Report
-      </Flex>
+      </div>
       <DropdownMenu.Root>
         <DropdownMenu.Trigger asChild>
           <StyledAvatar>
@@ -151,17 +135,16 @@ export const Header = () => {
           </StyledAvatar>
         </DropdownMenu.Trigger>
 
-        <StyledContent>
-          <StyledItem>
-            Preferências
-            <CgOptions size={24} />
-          </StyledItem>
-          <StyledItem onClick={signOutHandler}>
+        <StyledContent className="bg-gray-50 rounded-lg p-2">
+          <DropdownMenu.Item
+            className="text-red-800 cursor-pointer flex text-sm justify-between gap-1 items-center"
+            onClick={signOutHandler}
+          >
             Sair
             <CgLogOut size={24} />
-          </StyledItem>
+          </DropdownMenu.Item>
         </StyledContent>
       </DropdownMenu.Root>
-    </StyledHeader>
+    </div>
   );
 };

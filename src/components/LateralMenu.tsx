@@ -1,52 +1,36 @@
 import * as CollapsiblePrimitive from '@radix-ui/react-collapsible';
-import { FaAngleDown, FaAngleUp } from 'react-icons/fa';
+import { FaAngleDown, FaAngleUp, FaArchive } from 'react-icons/fa';
 import { useDataContext } from '../lib/DataContext';
-import { styled } from '../stitches.config';
-import { Flex, LateralMenuContainer } from './Containers';
 import Link from 'next/link';
-
-const CollapsibleContent = styled(CollapsiblePrimitive.CollapsibleContent, {
-  overflow: 'hidden',
-});
-
-const List = styled('ul', {
-  listStyle: 'inside',
-});
 
 export const LateralMenu = () => {
   const { projects, isLateralMenuOpen, setIsLateralMenuOpen } =
     useDataContext();
 
   return (
-    <LateralMenuContainer>
+    <div className="bg-gray-50 flex flex-col py-4 px-6 text-gray-800 text-md">
       <CollapsiblePrimitive.Collapsible
         open={isLateralMenuOpen}
         onOpenChange={setIsLateralMenuOpen}
       >
-        <Flex css={{ alignItems: 'center' }}>
-          <CollapsiblePrimitive.CollapsibleTrigger asChild>
-            <Flex
-              css={{
-                alignItems: 'center',
-                cursor: 'pointer',
-              }}
-            >
-              {isLateralMenuOpen ? <FaAngleUp /> : <FaAngleDown />}
-              Projetos Associados
-            </Flex>
-          </CollapsiblePrimitive.CollapsibleTrigger>
-        </Flex>
+        <CollapsiblePrimitive.CollapsibleTrigger asChild>
+          <div className="flex items-center gap-1 cursor-pointer">
+            {isLateralMenuOpen ? <FaAngleUp /> : <FaAngleDown />}
+            Projetos Associados
+          </div>
+        </CollapsiblePrimitive.CollapsibleTrigger>
 
-        <CollapsibleContent>
-          <List css={{ paddingLeft: 20 }}>
+        <CollapsiblePrimitive.CollapsibleContent>
+          <ul className="pl-2">
             {projects.map((project) => (
-              <li key={project.id}>
+              <li className="flex gap-1 items-center" key={project.id}>
+                <FaArchive />
                 <Link href={`/projects/${project.id}`}>{project.name}</Link>
               </li>
             ))}
-          </List>
-        </CollapsibleContent>
+          </ul>
+        </CollapsiblePrimitive.CollapsibleContent>
       </CollapsiblePrimitive.Collapsible>
-    </LateralMenuContainer>
+    </div>
   );
 };

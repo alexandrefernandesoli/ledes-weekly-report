@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useMemo } from 'react';
 import Head from 'next/head';
 import {
   Header,
@@ -9,21 +9,16 @@ import {
   ReportsContainer,
 } from '../../../components';
 import { useRouter } from 'next/router';
-import { useAuth } from '../../../lib/AuthContext';
-import { FaCalendar, FaPlusCircle } from 'react-icons/fa';
+import { FaCalendar, FaPlus, FaPlusCircle } from 'react-icons/fa';
 import Link from 'next/link';
 import { ProjectType, useDataContext } from '../../../lib/DataContext';
-import {
-  DocumentData,
-  getDocs,
-  query,
-  QueryDocumentSnapshot,
-  SnapshotOptions,
-  WithFieldValue,
-} from 'firebase/firestore';
-import { collection, where } from 'firebase/firestore';
-import { database } from '../../../lib/firebaseConfig';
 import moment from 'moment';
+import {
+  getUser,
+  supabaseServerClient,
+  withPageAuth,
+} from '@supabase/auth-helpers-nextjs';
+import { Button } from '../../../components/Button';
 
 type ReportType = {
   id: string;
@@ -33,77 +28,19 @@ type ReportType = {
   projectId: string;
 };
 
-const reportConverter = {
-  toFirestore: (report: WithFieldValue<ReportType>): DocumentData => {
-    return {
-      id: report.id,
-      content: report.content,
-      submittedAt: report.submittedAt,
-      userId: report.userId,
-      projectId: report.projectId,
-    };
-  },
-  fromFirestore: (
-    snapshot: QueryDocumentSnapshot,
-    options: SnapshotOptions
-  ) => {
-    const data = snapshot.data(options);
-    return {
-      id: snapshot.id,
-      content: data.content,
-      submittedAt: data.submittedAt.toDate(),
-      userId: data.userId,
-      projectId: data.projectId,
-    } as ReportType;
-  },
-};
-
-const Project = () => {
-  const { authUser, loading } = useAuth();
+const Project = ({ reports }: { reports: ReportType[] }) => {
   const { projects } = useDataContext();
-  const [project, setProject] = useState({
-    id: '',
-    name: '',
-    description: '',
-    users: {},
-  } as ProjectType);
-  const [reports, setReports] = useState<ReportType[]>([]);
+  const { query } = useRouter();
+  const { projectId } = query;
+
   const router = useRouter();
 
-  const { projectId } = router.query;
-
-  useEffect(() => {
-    if (!loading && !authUser) {
-      router.push('/');
-    }
-
-    if (!loading && authUser) {
-      const getReports = async () => {
-        const q = query(
-          collection(database, 'reports'),
-          where('projectId', '==', projectId),
-          where('userId', '==', authUser.uid)
-        ).withConverter(reportConverter);
-
-        const reportsSnapshot = await getDocs(q);
-
-        const newReports = [] as any[];
-
-        reportsSnapshot.forEach((doc) => {
-          newReports.push(doc.data());
-        });
-
-        newReports.sort(
-          (a, b) => b.submittedAt.getTime() - a.submittedAt.getTime()
-        );
-
-        setReports(newReports);
-      };
-
-      setProject(projects.find((proj) => proj.id == projectId) as ProjectType);
-      getReports();
-    }
-  }, [authUser, loading, projects, projectId]);
+  const project = useMemo(
+    () =>
+      projects.find((project) => project.id === projectId) ||
+      ({} as ProjectType),
+    [projectId]
+  );
 
   return (
     <>
@@ -112,67 +49,64 @@ const Project = () => {
       </Head>
       <Header />
 
-      <MainContainer>
+      <main className="flex w-full min-h-[calc(100%-64px)]">
         <LateralMenu />
 
-        <ContentContainer>
-          {project ? (
-            <>
-              <Flex
-                css={{
-                  color: 'white',
-                  justifyContent: 'center',
-                  margin: '12px 0',
-                }}
+        <div className="flex flex-col flex-1 bg-primary text-gray-100 px-6">
+          <div className="flex items-center gap-4 mt-4 mb-1 justify-between">
+            <h1 className="text-2xl">{project.name}</h1>
+            <Button className="w-max flex items-center gap-1 text-xs">
+              <FaPlus />
+              Novo membro
+            </Button>
+          </div>
+          <p className="mb-4 text-sm">
+            Membros: Alexandre F..., Joao da S..., Kelly A...
+          </p>
+          <div className="flex flex-col gap-2">
+            {reports.map((report, index) => (
+              <div
+                key={report.id}
+                className="bg-gray-100 text-gray-900 flex flex-col rounded-lg px-4 py-3 text-sm leading-2"
               >
-                <h1>{project.name}</h1>
-              </Flex>
-              <ReportsContainer>
-                <Link href={`/projects/${projectId}/new-report`} passHref>
-                  <Flex
-                    css={{
-                      backgroundColor: 'rgba(255,255,255,1)',
-                      padding: '8px',
-                      borderRadius: 6,
-                      flexDirection: 'column',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      width: '100%',
-                      cursor: 'pointer',
-                    }}
-                  >
-                    <FaPlusCircle size={42} color={'rgba(0,0,0,0.1)'} />
-                  </Flex>
-                </Link>
-
-                {reports.map((report, index) => (
-                  <Flex
-                    key={report.id}
-                    css={{
-                      backgroundColor: 'rgba(255,255,255,1)',
-                      padding: '8px',
-                      borderRadius: 6,
-                      flexDirection: 'column',
-                      width: '100%',
-                      cursor: 'pointer',
-                    }}
-                  >
-                    <p>{report.content}</p>
-                    <span>
-                      <FaCalendar />
-                      {moment(report.submittedAt).format('DD/MM/YY hh:mm:ss')}
-                    </span>
-                  </Flex>
-                ))}
-              </ReportsContainer>
-            </>
-          ) : (
-            <></>
-          )}
-        </ContentContainer>
-      </MainContainer>
+                <p>{report.content}</p>
+                <span className="flex items-center text-xs text-gray-500 justify-between self-end gap-1">
+                  <span className="w-30">
+                    {moment(report.submittedAt).format('DD/MM/YY hh:mm:ss')}
+                  </span>
+                  <FaCalendar />
+                </span>
+              </div>
+            ))}
+            <Button
+              onClick={() => router.push(`/projects/${projectId}/new-report`)}
+            >
+              Novo relatório
+            </Button>
+          </div>
+        </div>
+      </main>
     </>
   );
 };
+
+export const getServerSideProps = withPageAuth({
+  redirectTo: '/login',
+  async getServerSideProps(ctx) {
+    const { user } = await getUser(ctx);
+
+    const supabase = supabaseServerClient(ctx);
+
+    const { data: reports } = await supabase
+      .from('reports')
+      .select()
+      .eq('projectId', ctx.params?.projectId)
+      .eq('userId', user.id);
+
+    console.log(reports);
+
+    return { props: { user, reports } };
+  },
+});
 
 export default Project;
