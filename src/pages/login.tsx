@@ -115,6 +115,7 @@ const Home: NextPage = () => {
                 </TextInput.Icon>
                 <TextInput.Input
                   type="password"
+                  id="password"
                   placeholder="********"
                   register={register('password')}
                 />

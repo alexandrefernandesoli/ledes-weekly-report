@@ -33,7 +33,7 @@ function TextInputInput({
   return (
     <input
       className={clsx(
-        'bg-transparent text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none',
+        'bg-transparent text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none flex-1',
         className
       )}
       {...register}

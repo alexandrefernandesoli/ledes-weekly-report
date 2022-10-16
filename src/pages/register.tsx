@@ -52,12 +52,12 @@ const Register = () => {
       <Head>
         <title>Ledes Weekly Report - Cadastro</title>
       </Head>
-      <Container>
+      <main className="h-screen grid md:grid-cols-2 md:grid-flow-col">
         <HomeLeft />
 
         <div className="bg-primary flex flex-col items-center justify-center text-gray-200">
           <form
-            className="mt-4 flex flex-col md:w-[350px] gap-1"
+            className="mt-4 md:mt-0 flex flex-col md:w-[350px] gap-2"
             onSubmit={handleSubmit(handleSignupSubmit)}
           >
             <h2 className="text-xl mb-2">Cadastre-se</h2>
@@ -67,6 +67,7 @@ const Register = () => {
               <TextInput.Root>
                 <TextInput.Input
                   type="text"
+                  id="name"
                   placeholder="Digite seu nome"
                   register={register('name', { required: true })}
                 />
@@ -78,36 +79,41 @@ const Register = () => {
               <TextInput.Root>
                 <TextInput.Input
                   type="text"
+                  id="email"
                   placeholder="Digite seu email"
                   register={register('email', { required: true })}
                 />
               </TextInput.Root>
             </label>
-            <label htmlFor="name">
+            <label htmlFor="password">
               <span>Senha</span>
               <TextInput.Root>
                 <TextInput.Input
                   type="password"
+                  id="password"
                   placeholder="******"
                   register={register('password', { required: true })}
                 />
               </TextInput.Root>
             </label>
-            <label htmlFor="name">
+            <label htmlFor="confirmPassword">
               <span>Confirme sua senha</span>
               <TextInput.Root>
                 <TextInput.Input
                   type="password"
+                  id="confirmPassword"
                   placeholder="******"
                   register={register('confirmPassword', { required: true })}
                 />
               </TextInput.Root>
             </label>
 
-            <Button type="submit">Criar minha conta</Button>
+            <Button className="mt-2" type="submit">
+              Criar minha conta
+            </Button>
           </form>
         </div>
-      </Container>
+      </main>
     </>
   );
 };
