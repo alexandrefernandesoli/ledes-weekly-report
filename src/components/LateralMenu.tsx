@@ -8,7 +8,7 @@ export const LateralMenu = () => {
     useDataContext();
 
   return (
-    <div className="bg-gray-50 flex flex-col py-4 px-6 text-gray-800 text-md">
+    <div className="bg-gray-50 flex flex-col py-4 px-6 text-gray-800 text-md border-t-2 border-dotted">
       <CollapsiblePrimitive.Collapsible
         open={isLateralMenuOpen}
         onOpenChange={setIsLateralMenuOpen}

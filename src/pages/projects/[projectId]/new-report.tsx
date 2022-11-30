@@ -94,7 +94,7 @@ const NewReport = () => {
             className="flex flex-col w-full text-gray-100"
             onSubmit={handleSubmit(onSubmitForm)}
           >
-            <h1 className="mt-6 mb-4 text-2xl">Novo relatório</h1>
+            <h1 className="mt-4 mb-4 text-2xl">Novo relatório</h1>
 
             <p>
               Digite suas tarefas realizadas, para novas tarefas use o botão no

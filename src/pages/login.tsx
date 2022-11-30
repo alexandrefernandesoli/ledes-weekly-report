@@ -21,17 +21,17 @@ export const HomeLeft = () => {
   const router = useRouter();
 
   return (
-    <div className="px-4 md:px-12 py-6 bg-gray-100 text-gray-900">
+    <div className="flex flex-col px-4 md:px-12 py-6 bg-gray-100 text-gray-900">
       <div
         className="flex gap-4 items-center cursor-pointer"
         onClick={() => router.replace('/')}
       >
         <FaMailBulk className="text-primary text-6xl md:text-8xl" />
-        <h1 className="text-2xl md:text-4xl">
+        <h1 className="text-2xl md:text-5xl">
           Ledes Weekly <br /> Report
         </h1>
       </div>
-      <div className="flex flex-col md:mt-16">
+      <div className="md:mt-44 self-center justify-self-center">
         <h2 className="mt-8 text-xl md:text-2xl md:w-[400px]">
           Nossa plataforma é o lugar certo para o seu projeto
         </h2>
