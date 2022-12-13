@@ -4,8 +4,9 @@ import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 import { keyframes } from '@stitches/react';
 import { supabaseClient } from '@supabase/auth-helpers-nextjs';
 import { useRouter } from 'next/router';
+import { BiCalendar, BiMessage } from 'react-icons/bi';
 import { CgLogOut, CgOptions } from 'react-icons/cg';
-import { FaMailBulk } from 'react-icons/fa';
+import { FaMailBulk, FaRegBell } from 'react-icons/fa';
 import { styled } from '../stitches.config';
 
 const StyledAvatar = styled(Avatar.Root, {
@@ -127,24 +128,39 @@ export const Header = () => {
         <FaMailBulk size={48} color="#3fb0ac" />
         Ledes Weekly <br /> Report
       </div>
-      <DropdownMenu.Root>
-        <DropdownMenu.Trigger asChild>
-          <StyledAvatar>
-            <StyledImage />
-            <StyledFallback>AF</StyledFallback>
-          </StyledAvatar>
-        </DropdownMenu.Trigger>
 
-        <StyledContent className="bg-gray-50 rounded-lg p-2">
-          <DropdownMenu.Item
-            className="text-red-800 cursor-pointer flex text-sm justify-between gap-1 items-center"
-            onClick={signOutHandler}
-          >
-            Sair
-            <CgLogOut size={24} />
-          </DropdownMenu.Item>
-        </StyledContent>
-      </DropdownMenu.Root>
+      <div className="flex flex-column items-center justify-center gap-3 text-primary">
+        <BiCalendar
+          size={30}
+          className="cursor-pointer  transition-colors hover:text-gray-700"
+        />
+        <FaRegBell
+          size={30}
+          className="cursor-pointer  transition-colors hover:text-gray-700"
+        />
+        <BiMessage
+          size={30}
+          className="cursor-pointer  transition-colors hover:text-gray-700"
+        />
+        <DropdownMenu.Root>
+          <DropdownMenu.Trigger asChild>
+            <StyledAvatar>
+              <StyledImage />
+              <StyledFallback>AF</StyledFallback>
+            </StyledAvatar>
+          </DropdownMenu.Trigger>
+
+          <StyledContent className="bg-gray-50 rounded-lg p-2">
+            <DropdownMenu.Item
+              className="text-red-800 cursor-pointer flex text-sm justify-between gap-1 items-center"
+              onClick={signOutHandler}
+            >
+              Sair
+              <CgLogOut size={24} />
+            </DropdownMenu.Item>
+          </StyledContent>
+        </DropdownMenu.Root>
+      </div>
     </div>
   );
 };

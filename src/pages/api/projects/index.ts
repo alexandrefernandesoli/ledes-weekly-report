@@ -14,5 +14,18 @@ export default withApiAuth(async function ProtectedRoute(req, res) {
     .select('*, users!inner(*), projects_users(role)')
     .eq('users.id', user.id);
 
-  res.json({ projects: data });
+  const projects = data?.map((project) => {
+    return {
+      id: project.id,
+      name: project.name,
+      myRole: project.projects_users[0].role,
+      description: project.description,
+      type: project.type,
+      users: project.users,
+      createdAt: project.createdAt,
+      updatedAt: project.updatedAt,
+    };
+  });
+
+  res.json({ projects });
 });

@@ -41,7 +41,7 @@ const Project = ({ reports }: { reports: ReportType[] }) => {
     () =>
       projects.find((project) => project.id === projectId) ||
       ({} as ProjectType),
-    [projectId]
+    [projectId, projects]
   );
 
   return (
@@ -52,34 +52,22 @@ const Project = ({ reports }: { reports: ReportType[] }) => {
       <Header />
 
       <main className="flex w-full min-h-[calc(100%-64px)]">
-        <LateralMenu />
+        {/* <LateralMenu /> */}
 
         <div className="flex flex-col flex-1 bg-primary text-gray-100 px-6">
           <div className="flex items-center gap-4 mt-4 mb-1 justify-between">
-            <h1 className="text-2xl">{project.name}</h1>
-
-            <DialogPrimitive.Root>
-              <DialogPrimitive.Trigger asChild>
-
-                <Button className="w-max flex items-center gap-1 text-xs">
-                  <FaPlus />
-                  Novo membro
-                </Button>
-              </DialogPrimitive.Trigger>
-              <DialogPrimitive.Portal>
-                <DialogPrimitive.Overlay className='bg-black fixed' />
-                <DialogPrimitive.Content className="bg-white p-4 rounded-lg top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%] fixed">
-                  <DialogPrimitive.Title>Insira o email para o convite</DialogPrimitive.Title>
-
-                  <TextInput.Root>
-                    <TextInput.Input placeholder='johndoe@example.com' />
-                  </TextInput.Root>
-                  <DialogPrimitive.Description />
-                  <DialogPrimitive.Close />
-                </DialogPrimitive.Content>
-              </DialogPrimitive.Portal>
-            </DialogPrimitive.Root>
-
+            {project.name ? (
+              <h1 className="text-2xl">{project.name}</h1>
+            ) : (
+              <h1 className="text-2xl">Carregando...</h1>
+            )}
+            <Button
+              className="w-max flex items-center gap-1 text-xs"
+              onClick={() => router.push(`/projects/${projectId}/new-report`)}
+            >
+              <FaPlus />
+              Novo relatório
+            </Button>
           </div>
           <p className="mb-4 text-sm">
             Membros: Alexandre F..., Joao da S..., Kelly A...
@@ -99,11 +87,6 @@ const Project = ({ reports }: { reports: ReportType[] }) => {
                 </span>
               </div>
             ))}
-            <Button
-              onClick={() => router.push(`/projects/${projectId}/new-report`)}
-            >
-              Novo relatório
-            </Button>
           </div>
         </div>
       </main>

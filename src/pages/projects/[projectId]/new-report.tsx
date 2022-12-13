@@ -87,7 +87,7 @@ const NewReport = () => {
       <Header />
 
       <main className="flex w-full min-h-[calc(100%-64px)]">
-        <LateralMenu />
+        {/* <LateralMenu /> */}
 
         <div className="flex flex-1 bg-primary px-6">
           <form
