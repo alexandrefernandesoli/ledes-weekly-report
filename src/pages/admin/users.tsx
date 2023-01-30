@@ -29,7 +29,7 @@ const Main = ({ user, users }: { user: User; users: any[] }) => {
               <th>Data de Criação</th>
             </tr>
             {users.map((entry) => (
-              <tr id={entry.id}>
+              <tr key={entry.id} id={entry.id}>
                 <th>{entry.name}</th>
                 <th>{entry.email}</th>
                 <th>{entry.role}</th>
