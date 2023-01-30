@@ -1,20 +1,15 @@
 import { styled } from '@stitches/react';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Button } from '../../../components/Button';
 import { useForm } from 'react-hook-form';
 import Head from 'next/head';
 import { FaTimes, FaPlusCircle } from 'react-icons/fa';
-import {
-  ContentContainer,
-  Flex,
-  Header,
-  LateralMenu,
-  MainContainer,
-} from '../../../components';
+import { Header } from '../../../components';
 import { useRouter } from 'next/router';
 import axios from 'axios';
-import { withPageAuth } from '@supabase/auth-helpers-nextjs';
 import { TextInput } from '../../../components/TextInput';
+import { GetServerSidePropsContext } from 'next';
+import { createServerSupabaseClient } from '@supabase/auth-helpers-nextjs';
 
 const TaskLabel = styled('label', {
   color: '$primary',
@@ -132,8 +127,28 @@ const NewReport = () => {
   );
 };
 
-export const getServerSideProps = withPageAuth({
-  redirectTo: '/login',
-});
+export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
+  const supabase = createServerSupabaseClient(ctx);
+
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  if (!session) {
+    return {
+      redirect: {
+        destination: '/login',
+        permanent: false,
+      },
+    };
+  }
+
+  return {
+    props: {
+      initialSession: session,
+      user: session.user,
+    },
+  };
+};
 
 export default NewReport;
