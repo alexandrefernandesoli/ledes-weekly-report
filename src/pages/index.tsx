@@ -1,31 +1,11 @@
 import Head from 'next/head';
-import {
-  FaAngleDown,
-  FaAngleUp,
-  FaDownload,
-  FaFile,
-  FaProjectDiagram,
-} from 'react-icons/fa';
 import { Header } from '../components';
-import Link from 'next/link';
-import { useDataContext } from '../lib/DataContext';
-import {
-  getUser,
-  supabaseServerClient,
-  User,
-  withPageAuth,
-} from '@supabase/auth-helpers-nextjs';
-import * as CollapsiblePrimitive from '@radix-ui/react-collapsible';
+import { createServerSupabaseClient } from '@supabase/auth-helpers-nextjs';
 
-import moment from 'moment';
-import { useState } from 'react';
+import { ProjectsList, ReportsList } from '../components';
+import { GetServerSidePropsContext } from 'next';
 
 const Main = ({ userData }: { userData: any }) => {
-  const { projects } = useDataContext();
-
-  const [isProjectsOpen, setIsProjectsOpen] = useState(true);
-  const [isReportsOpen, setIsReportsOpen] = useState(true);
-
   return (
     <>
       <Head>
@@ -39,115 +19,11 @@ const Main = ({ userData }: { userData: any }) => {
             Bem vindo {userData.name.split(' ')[0]}!
           </h1>
 
-          <CollapsiblePrimitive.Collapsible
-            open={isProjectsOpen}
-            onOpenChange={setIsProjectsOpen}
-          >
-            <CollapsiblePrimitive.CollapsibleTrigger asChild>
-              <h1 className="text-xl mt-4 mb-4 flex items-center gap-1 cursor-pointer">
-                Meus Projetos{' '}
-                {isProjectsOpen ? (
-                  <FaAngleDown className="text-gray-800" size={24} />
-                ) : (
-                  <FaAngleUp className="text-gray-800" size={24} />
-                )}
-              </h1>
-            </CollapsiblePrimitive.CollapsibleTrigger>
-
-            <CollapsiblePrimitive.CollapsibleContent>
-              {projects.map((project, arrayId) => (
-                <div
-                  key={project.id}
-                  className="rounded-lg mb-2 border-gray-800 border-2 w-full flex px-4 py-2 text-base items-center justify-between"
-                >
-                  <div className="flex items-center gap-3">
-                    <FaProjectDiagram className="text-gray-800" size={30} />
-                    <Link href={`/projects/${project.id}`}>{project.name}</Link>
-                  </div>
-
-                  <span>Orientador: Hudson</span>
-                  <span className="flex items-center gap-1">
-                    Membros: -----------{' '}
-                    <FaAngleDown
-                      size={20}
-                      className="cursor-pointer text-gray-800"
-                    />
-                  </span>
-                  <span>Tempo restante: 2 dias</span>
-                </div>
-              ))}
-            </CollapsiblePrimitive.CollapsibleContent>
-          </CollapsiblePrimitive.Collapsible>
+          <ProjectsList />
 
           <div className="w-full h-[2px] bg-gray-800 mt-8"></div>
 
-          <CollapsiblePrimitive.Collapsible
-            open={isReportsOpen}
-            onOpenChange={setIsReportsOpen}
-          >
-            <CollapsiblePrimitive.CollapsibleTrigger asChild>
-              <h1 className="text-xl mt-4 mb-4 flex items-center gap-1 cursor-pointer">
-                Histórico de Relatórios{' '}
-                {isReportsOpen ? (
-                  <FaAngleDown className="text-gray-800" size={24} />
-                ) : (
-                  <FaAngleUp className="text-gray-800" size={24} />
-                )}
-              </h1>
-            </CollapsiblePrimitive.CollapsibleTrigger>
-
-            <CollapsiblePrimitive.CollapsibleContent>
-              {projects.map((project, arrayId) => (
-                <div
-                  key={project.id}
-                  className="rounded-lg mb-2 border-gray-800 border-2 w-full grid grid-cols-5 px-4 py-2 text-base items-center"
-                >
-                  <div className="flex items-center gap-3">
-                    <FaFile className="text-gray-800" size={30} />
-                    <Link href={`/projects/${project.id}`}>{project.name}</Link>
-                  </div>
-
-                  <div className="w-fit justify-self-start">
-                    Data de Criação:{' '}
-                    {moment(project.createdAt).format('DD/MM/YYYY')}
-                  </div>
-                  <div className="w-fit justify-self-center">
-                    Orientador: Hudson
-                  </div>
-                  <div className="w-fit justify-self-end">
-                    Status: Finalizado
-                  </div>
-
-                  <div className="w-fit justify-self-end">
-                    <FaDownload className="text-gray-800" size={30} />
-                  </div>
-                </div>
-              ))}
-              <div
-                key={2}
-                className="rounded-lg mb-2 border-gray-800 border-2 w-full grid grid-cols-5 px-4 py-2 text-base items-center"
-              >
-                <div className="flex items-center gap-3">
-                  <FaFile className="text-gray-800" size={30} />
-                  <Link href={`/projects/dasdasdsa`}>Relatório 2</Link>
-                </div>
-
-                <div className="w-fit justify-self-start">
-                  Data de Criação:{' '}
-                  {/* {moment(project.createdAt).format('DD/MM/YYYY')} */}
-                  12/12/2022
-                </div>
-                <div className="w-fit justify-self-center">
-                  Orientador: Hudson
-                </div>
-                <div className="w-fit justify-self-end">Status: Finalizado</div>
-
-                <div className="w-fit justify-self-end">
-                  <FaDownload className="text-gray-800" size={30} />
-                </div>
-              </div>
-            </CollapsiblePrimitive.CollapsibleContent>
-          </CollapsiblePrimitive.Collapsible>
+          <ReportsList />
 
           <div className="w-full h-[2px] bg-gray-800 mt-8"></div>
         </div>
@@ -156,26 +32,42 @@ const Main = ({ userData }: { userData: any }) => {
   );
 };
 
-export const getServerSideProps = withPageAuth({
-  redirectTo: '/login',
-  async getServerSideProps(ctx) {
-    const { user } = await getUser(ctx);
+export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
+  const supabase = createServerSupabaseClient(ctx);
 
-    const supabase = supabaseServerClient(ctx);
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
 
-    const { data, error } = await supabase
-      .from('users')
-      .select('*')
-      .eq('id', user.id);
+  if (!session) {
+    return {
+      redirect: {
+        destination: '/login',
+        permanent: false,
+      },
+    };
+  }
 
-    if (error) {
-      await supabase.auth.signOut();
+  const { data, error } = await supabase
+    .from('users')
+    .select('*')
+    .eq('id', session.user.id)
+    .limit(1)
+    .single();
 
-      return { props: {} };
-    }
+  if (error) {
+    await supabase.auth.signOut();
 
-    return { props: { userData: data[0] } };
-  },
-});
+    return { props: {} };
+  }
+
+  return {
+    props: {
+      initialSession: session,
+      user: session.user,
+      userData: data,
+    },
+  };
+};
 
 export default Main;

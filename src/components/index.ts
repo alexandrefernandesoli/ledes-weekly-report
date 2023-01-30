@@ -1,3 +1,4 @@
 export * from './Header';
-export * from './LateralMenu';
 export * from './Containers';
+export * from './ProjectsList';
+export * from './ReportsList';

@@ -1,8 +1,4 @@
-import {
-  getUser,
-  supabaseClient,
-  withPageAuth,
-} from '@supabase/auth-helpers-nextjs';
+import { createServerSupabaseClient } from '@supabase/auth-helpers-nextjs';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
@@ -11,6 +7,8 @@ import { HomeLeft } from './login';
 import { Button } from '../components/Button';
 import { Container } from '../components/HomeComponents';
 import { TextInput } from '../components/TextInput';
+import { GetServerSidePropsContext } from 'next';
+import { useSupabaseClient } from '@supabase/auth-helpers-react';
 
 type Inputs = {
   name: string;
@@ -25,6 +23,8 @@ const Register = () => {
 
   const [loading, setLoading] = useState(false);
 
+  const supabase = useSupabaseClient();
+
   const handleSignupSubmit: SubmitHandler<Inputs> = async (data) => {
     setLoading(true);
 
@@ -35,17 +35,15 @@ const Register = () => {
       return;
     }
 
-    await supabaseClient.auth.signUp(
-      {
-        email: data.email,
-        password: data.password,
-      },
-      {
+    await supabase.auth.signUp({
+      email: data.email,
+      password: data.password,
+      options: {
         data: {
           name: data.name,
         },
-      }
-    );
+      },
+    });
 
     setLoading(false);
     router.push('/');
@@ -122,19 +120,29 @@ const Register = () => {
   );
 };
 
-export const getServerSideProps = withPageAuth({
-  authRequired: false,
-  redirectTo: '/',
-  async getServerSideProps(ctx) {
-    const { user } = await getUser(ctx);
+export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
+  // Create authenticated Supabase Client
+  const supabase = createServerSupabaseClient(ctx);
+  // Check if we have a session
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
 
-    if (user) {
-      console.log(user);
-      return { redirect: { permanent: false, destination: '/' } };
-    }
+  if (session)
+    return {
+      redirect: {
+        destination: '/',
+        permanent: true,
+        initialSession: session,
+        user: session.user,
+      },
+    };
 
-    return { props: { user } };
-  },
-});
+  return {
+    props: {
+      initialSession: session,
+    },
+  };
+};
 
 export default Register;

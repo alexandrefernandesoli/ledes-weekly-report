@@ -1,16 +1,13 @@
-import type { NextPage } from 'next';
+import type { GetServerSidePropsContext, NextPage } from 'next';
 import Link from 'next/link';
 import Head from 'next/head';
 import { Button } from '../components/Button';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { useRouter } from 'next/router';
 import { FaCheck, FaEnvelope, FaLock, FaMailBulk } from 'react-icons/fa';
-import {
-  getUser,
-  supabaseClient,
-  withPageAuth,
-} from '@supabase/auth-helpers-nextjs';
+import { createServerSupabaseClient } from '@supabase/auth-helpers-nextjs';
 import { TextInput } from '../components/TextInput';
+import { useSupabaseClient } from '@supabase/auth-helpers-react';
 
 type Inputs = {
   email: string;
@@ -61,9 +58,10 @@ export const HomeLeft = () => {
 const Home: NextPage = () => {
   const { handleSubmit, register } = useForm<Inputs>();
   const router = useRouter();
+  const supabaseClient = useSupabaseClient();
 
   const handleLoginSubmit: SubmitHandler<Inputs> = async (data) => {
-    const { error } = await supabaseClient.auth.signIn({
+    const { error } = await supabaseClient.auth.signInWithPassword({
       email: data.email,
       password: data.password,
     });
@@ -140,18 +138,29 @@ const Home: NextPage = () => {
   );
 };
 
-export const getServerSideProps = withPageAuth({
-  authRequired: false,
-  redirectTo: '/',
-  async getServerSideProps(ctx) {
-    const { user } = await getUser(ctx);
+export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
+  // Create authenticated Supabase Client
+  const supabase = createServerSupabaseClient(ctx);
+  // Check if we have a session
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
 
-    if (user) {
-      return { redirect: { permanent: false, destination: '/' } };
-    }
+  if (session)
+    return {
+      redirect: {
+        destination: '/',
+        permanent: true,
+        initialSession: session,
+        user: session.user,
+      },
+    };
 
-    return { props: { user } };
-  },
-});
+  return {
+    props: {
+      initialSession: session,
+    },
+  };
+};
 
 export default Home;

@@ -2,7 +2,7 @@ import { mauve, violet } from '@radix-ui/colors';
 import * as Avatar from '@radix-ui/react-avatar';
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 import { keyframes } from '@stitches/react';
-import { supabaseClient } from '@supabase/auth-helpers-nextjs';
+import { useSupabaseClient } from '@supabase/auth-helpers-react';
 import { useRouter } from 'next/router';
 import { BiCalendar, BiMessage } from 'react-icons/bi';
 import { CgLogOut, CgOptions } from 'react-icons/cg';
@@ -112,9 +112,10 @@ const StyledItem = styled(DropdownMenu.Item, { ...itemStyles });
 
 export const Header = () => {
   const router = useRouter();
+  const supabase = useSupabaseClient();
 
   const signOutHandler = async () => {
-    await supabaseClient.auth.signOut();
+    await supabase.auth.signOut();
 
     router.replace('/login');
   };
