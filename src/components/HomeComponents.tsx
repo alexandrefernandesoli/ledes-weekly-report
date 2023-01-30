@@ -1,5 +1,6 @@
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { styled } from '@stitches/react';
+import { UseFormRegister, UseFormRegisterReturn } from 'react-hook-form';
+import { IconType } from 'react-icons';
 
 export const Container = styled('main', {
   height: '100vh',
@@ -28,7 +29,6 @@ export const HomeContent = styled('div', {
   marginTop: '48px',
   display: 'flex',
   flexDirection: 'column',
-  height: '100%',
   alignItems: 'center',
 
   '& h3': {
@@ -60,25 +60,31 @@ export const LoginContainer = styled('div', {
   justifyContent: 'center',
 });
 
+export const LinksContainer = styled('div', {
+  marginTop: '4px',
+  display: 'flex',
+  justifyContent: 'space-between',
+});
+
+export const LoginTitle = styled('h2', {
+  fontSize: '1.5rem',
+  fontWeight: '300',
+  color: 'white',
+  marginBottom: '24px',
+});
+
 export const LoginItems = styled('form', {
   display: 'flex',
   flexDirection: 'column',
   width: '50%',
 });
 
-export const LoginTitle = styled('h2', {
-  fontSize: '36px',
-  fontWeight: 'bold',
-  color: 'white',
-  marginBottom: '24px',
-});
-
 const InputContainer = styled('div', {
   display: 'flex',
+  alignItems: 'center',
   backgroundColor: 'white',
   borderRadius: '10px',
   marginBottom: '12px',
-  paddingLeft: '12px',
 });
 
 export const InputField = styled('input', {
@@ -91,31 +97,28 @@ export const InputField = styled('input', {
   fontSize: '14px',
 });
 
-export const Input = (props: any) => {
+export const Input = ({
+  icon: Icon,
+  type,
+  placeholder,
+  register,
+}: {
+  icon?: IconType;
+  type: string;
+  placeholder: string;
+  register: UseFormRegisterReturn;
+}) => {
   return (
     <InputContainer>
-      <FontAwesomeIcon color="#00000088" width={14} icon={props.icon} />
-      <InputField
-        type={props.type}
-        placeholder={props.placeholder}
-        {...props.register}
-      />
+      {Icon ? (
+        <Icon size={16} style={{ marginLeft: '12px' }} color={'#00000088'} />
+      ) : (
+        <></>
+      )}
+      <InputField type={type} placeholder={placeholder} {...register} />
     </InputContainer>
   );
 };
-
-export const Button = styled('button', {
-  fontWeight: 500,
-  textTransform: 'uppercase',
-  cursor: 'pointer',
-  fontSize: '24px',
-  border: 'none',
-  backgroundColor: 'black',
-  color: 'white',
-  padding: '4px',
-  borderRadius: '10px',
-  margin: '12px 0',
-});
 
 export const Link = styled('a', {
   fontWeight: 'bold',
