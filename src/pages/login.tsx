@@ -31,7 +31,7 @@ export const HomeLeft = () => {
           Ledes Weekly <br /> Report
         </h1>
       </div>
-      <div className="md:mt-44 self-center justify-self-center">
+      <div className="md:mt-28 self-center justify-self-center">
         <h2 className="mt-8 text-xl md:text-2xl md:w-[400px]">
           Nossa plataforma é o lugar certo para o seu projeto
         </h2>
@@ -63,8 +63,6 @@ const Home: NextPage = () => {
   const router = useRouter();
 
   const handleLoginSubmit: SubmitHandler<Inputs> = async (data) => {
-    console.log('dasdasdsa', data);
-
     const { error } = await supabaseClient.auth.signIn({
       email: data.email,
       password: data.password,
@@ -149,7 +147,6 @@ export const getServerSideProps = withPageAuth({
     const { user } = await getUser(ctx);
 
     if (user) {
-      console.log(user);
       return { redirect: { permanent: false, destination: '/' } };
     }
 

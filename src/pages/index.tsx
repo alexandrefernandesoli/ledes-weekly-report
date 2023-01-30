@@ -9,13 +9,18 @@ import {
 import { Header } from '../components';
 import Link from 'next/link';
 import { useDataContext } from '../lib/DataContext';
-import { getUser, User, withPageAuth } from '@supabase/auth-helpers-nextjs';
+import {
+  getUser,
+  supabaseServerClient,
+  User,
+  withPageAuth,
+} from '@supabase/auth-helpers-nextjs';
 import * as CollapsiblePrimitive from '@radix-ui/react-collapsible';
 
 import moment from 'moment';
 import { useState } from 'react';
 
-const Main = ({ user }: { user: User }) => {
+const Main = ({ userData }: { userData: any }) => {
   const { projects } = useDataContext();
 
   const [isProjectsOpen, setIsProjectsOpen] = useState(true);
@@ -31,7 +36,7 @@ const Main = ({ user }: { user: User }) => {
       <main className="flex w-full min-h-[calc(100%-64px)]">
         <div className="bg-primary flex-1 flex flex-col px-6 text-gray-100">
           <h1 className="text-2xl mt-6 mb-4">
-            Bem vindo {user.user_metadata.name.split(' ')[0]}!
+            Bem vindo {userData.name.split(' ')[0]}!
           </h1>
 
           <CollapsiblePrimitive.Collapsible
@@ -156,7 +161,20 @@ export const getServerSideProps = withPageAuth({
   async getServerSideProps(ctx) {
     const { user } = await getUser(ctx);
 
-    return { props: { user } };
+    const supabase = supabaseServerClient(ctx);
+
+    const { data, error } = await supabase
+      .from('users')
+      .select('*')
+      .eq('id', user.id);
+
+    if (error) {
+      await supabase.auth.signOut();
+
+      return { props: {} };
+    }
+
+    return { props: { userData: data[0] } };
   },
 });
 

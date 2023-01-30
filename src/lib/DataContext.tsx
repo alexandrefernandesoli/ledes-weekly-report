@@ -21,6 +21,7 @@ const DataContext = createContext({
 export function DataProvider({ children }: { children: React.ReactNode }) {
   const [isLateralMenuOpen, setIsLateralMenuOpen] = useState(false);
   const [projects, setProjects] = useState([] as ProjectType[]);
+  const [isProjectsLoading, setIsProjectsLoading] = useState(false);
   const { user } = useUser();
 
   useEffect(() => {

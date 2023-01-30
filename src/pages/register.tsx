@@ -1,4 +1,8 @@
-import { supabaseClient } from '@supabase/auth-helpers-nextjs';
+import {
+  getUser,
+  supabaseClient,
+  withPageAuth,
+} from '@supabase/auth-helpers-nextjs';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
@@ -117,5 +121,20 @@ const Register = () => {
     </>
   );
 };
+
+export const getServerSideProps = withPageAuth({
+  authRequired: false,
+  redirectTo: '/',
+  async getServerSideProps(ctx) {
+    const { user } = await getUser(ctx);
+
+    if (user) {
+      console.log(user);
+      return { redirect: { permanent: false, destination: '/' } };
+    }
+
+    return { props: { user } };
+  },
+});
 
 export default Register;
