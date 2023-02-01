@@ -122,13 +122,11 @@ const Home: NextPage = () => {
               Entrar na plataforma
             </Button>
             <div className="flex flex-col items-center mt-3">
-              <Link href="/register">
-                <a className="underline">Esqueceu sua senha?</a>
+              <Link href="/register" className="underline mb-2">
+                Esqueceu sua senha?
               </Link>
-              <Link href="/register">
-                <a className="mt-2 underline">
-                  Não possui conta? Crie uma agora!
-                </a>
+              <Link className="underline" href="/register">
+                Não possui conta? Crie uma agora!
               </Link>
             </div>
           </form>

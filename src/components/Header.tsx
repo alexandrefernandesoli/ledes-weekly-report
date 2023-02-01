@@ -1,3 +1,5 @@
+'use client';
+
 import { mauve, violet } from '@radix-ui/colors';
 import * as Avatar from '@radix-ui/react-avatar';
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
