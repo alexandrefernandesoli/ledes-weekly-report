@@ -1,34 +1,23 @@
-import Head from 'next/head';
-import { Header } from '../components';
 import { createServerSupabaseClient } from '@supabase/auth-helpers-nextjs';
-
 import { ProjectsList, ReportsList } from '../components';
 import { GetServerSidePropsContext } from 'next';
+import MainLayout from '../components/MainLayout';
 
 const Main = ({ userData }: { userData: any }) => {
   return (
-    <>
-      <Head>
-        <title>Ledes Weekly Report - Inicio</title>
-      </Head>
-      <Header />
+    <MainLayout>
+      <h1 className="text-2xl mt-6 mb-4">
+        Bem vindo {userData.name.split(' ')[0]}!
+      </h1>
 
-      <main className="flex w-full min-h-[calc(100%-64px)]">
-        <div className="bg-primary flex-1 flex flex-col px-6 text-gray-100">
-          <h1 className="text-2xl mt-6 mb-4">
-            Bem vindo {userData.name.split(' ')[0]}!
-          </h1>
+      <ProjectsList />
 
-          <ProjectsList />
+      <div className="w-full h-[2px] bg-gray-800 mt-8"></div>
 
-          <div className="w-full h-[2px] bg-gray-800 mt-8"></div>
+      <ReportsList />
 
-          <ReportsList />
-
-          <div className="w-full h-[2px] bg-gray-800 mt-8"></div>
-        </div>
-      </main>
-    </>
+      <div className="w-full h-[2px] bg-gray-800 mt-8"></div>
+    </MainLayout>
   );
 };
 

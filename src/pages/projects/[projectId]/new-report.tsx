@@ -10,6 +10,7 @@ import axios from 'axios';
 import { TextInput } from '../../../components/TextInput';
 import { GetServerSidePropsContext } from 'next';
 import { createServerSupabaseClient } from '@supabase/auth-helpers-nextjs';
+import MainLayout from '../../../components/MainLayout';
 
 const TaskLabel = styled('label', {
   color: '$primary',
@@ -75,55 +76,39 @@ const NewReport = () => {
   };
 
   return (
-    <>
-      <Head>
-        <title>Ledes Weekly Report - Inicio</title>
-      </Head>
-      <Header />
+    <MainLayout>
+      <form
+        className="flex flex-col w-full text-gray-100"
+        onSubmit={handleSubmit(onSubmitForm)}
+      >
+        <h1 className="mt-4 mb-4 text-2xl">Novo relatório</h1>
 
-      <main className="flex w-full min-h-[calc(100%-64px)]">
-        {/* <LateralMenu /> */}
+        <p>
+          Digite suas tarefas realizadas, para novas tarefas use o botão no
+          final da lista.
+        </p>
 
-        <div className="flex flex-1 bg-primary px-6">
-          <form
-            className="flex flex-col w-full text-gray-100"
-            onSubmit={handleSubmit(onSubmitForm)}
+        <div className="flex flex-col gap-2 mt-2">
+          {tasks.map((task, i) => (
+            <TextInput.Root key={task.id}>
+              <TaskLabel htmlFor={'targetInput' + task.id}>{i + 1}.</TaskLabel>
+              <TextInput.Input
+                className="flex-1"
+                register={register('input-' + task.id)}
+              />
+              <FaTimes className="text-primary" onClick={() => removeTask(i)} />
+            </TextInput.Root>
+          ))}
+          <div
+            className="bg-gray-100 h-11 rounded-lg cursor-pointer flex items-center justify-center mb-4"
+            onClick={() => newTask()}
           >
-            <h1 className="mt-4 mb-4 text-2xl">Novo relatório</h1>
-
-            <p>
-              Digite suas tarefas realizadas, para novas tarefas use o botão no
-              final da lista.
-            </p>
-
-            <div className="flex flex-col gap-2 mt-2">
-              {tasks.map((task, i) => (
-                <TextInput.Root key={task.id}>
-                  <TaskLabel htmlFor={'targetInput' + task.id}>
-                    {i + 1}.
-                  </TaskLabel>
-                  <TextInput.Input
-                    className="flex-1"
-                    register={register('input-' + task.id)}
-                  />
-                  <FaTimes
-                    className="text-primary"
-                    onClick={() => removeTask(i)}
-                  />
-                </TextInput.Root>
-              ))}
-              <div
-                className="bg-gray-100 h-11 rounded-lg cursor-pointer flex items-center justify-center mb-4"
-                onClick={() => newTask()}
-              >
-                <FaPlusCircle className="text-primary text-3xl" />
-              </div>
-              <Button type="submit">Enviar relatório</Button>
-            </div>
-          </form>
+            <FaPlusCircle className="text-primary text-3xl" />
+          </div>
+          <Button type="submit">Enviar relatório</Button>
         </div>
-      </main>
-    </>
+      </form>
+    </MainLayout>
   );
 };
 
