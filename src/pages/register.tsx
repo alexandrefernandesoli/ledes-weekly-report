@@ -1,14 +1,13 @@
 import { createServerSupabaseClient } from '@supabase/auth-helpers-nextjs';
+import { useSupabaseClient } from '@supabase/auth-helpers-react';
+import { GetServerSidePropsContext } from 'next';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
-import { HomeLeft } from './login';
 import { Button } from '../components/Button';
-import { Container } from '../components/HomeComponents';
 import { TextInput } from '../components/TextInput';
-import { GetServerSidePropsContext } from 'next';
-import { useSupabaseClient } from '@supabase/auth-helpers-react';
+import { HomeLeft } from './login';
 
 type Inputs = {
   name: string;

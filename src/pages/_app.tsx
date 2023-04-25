@@ -1,14 +1,11 @@
-import '../styles/globals.css';
-import type { AppProps } from 'next/app';
-import NextNProgress from 'nextjs-progressbar';
 import { createBrowserSupabaseClient } from '@supabase/auth-helpers-nextjs';
-import { SessionContextProvider, Session } from '@supabase/auth-helpers-react';
-import { useState } from 'react';
-import { Open_Sans } from '@next/font/google';
-import { Database } from '../../types/supabase';
+import { Session, SessionContextProvider } from '@supabase/auth-helpers-react';
+import type { AppProps } from 'next/app';
 import Head from 'next/head';
-
-const openSans = Open_Sans({ subsets: ['latin'] });
+import NextNProgress from 'nextjs-progressbar';
+import { useState } from 'react';
+import { Database } from '../../types/supabase';
+import '../styles/globals.css';
 
 function MyApp({
   Component,
@@ -26,7 +23,7 @@ function MyApp({
       <Head>
         <title>Ledes Weekly Report</title>
       </Head>
-      <NextNProgress />
+      {/* <NextNProgress /> */}
       <Component {...pageProps} />
     </SessionContextProvider>
   );

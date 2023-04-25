@@ -1,11 +1,11 @@
 import {
   createServerSupabaseClient,
   Session,
-  SupabaseClient,
+  SupabaseClient
 } from '@supabase/auth-helpers-nextjs';
 import { NextApiHandler, NextApiRequest, NextApiResponse } from 'next';
-import { Database } from '../../../../types/supabase';
 import { z } from 'zod';
+import { Database } from '../../../../types/supabase';
 
 const projectSchema = z.object({
   name: z.string(),
@@ -58,32 +58,31 @@ async function newProject({ req, res, supabase, session }: NecessaryHeaders) {
     .limit(1)
     .single();
 
-  if (error || user.role !== 'SUPERVISOR') {
+  if (error || !['SUPERVISOR', 'ADMIN'].includes(user.role)) {
     return res.status(500).json({ error });
   }
 
-  try {
-    const data = projectSchema.parse(projectSchema);
-
-    const { data: project, error } = await supabase
-      .from('projects')
-      .insert(data)
-      .select()
-      .single();
-
-    if (!error) {
-      await supabase.from('projects_users').insert({
-        projectId: project.id,
-        userId: session.user.id,
-      });
-    }
-  } catch (e) {
-    if (e instanceof z.ZodError) {
-      return res.status(500).json({ error: e });
-    } else {
-      return res.status(500).json({ error: e });
-    }
+  const data = {
+    name: req.body.name,
+    description: req.body.description,
+    type: req.body.type
   }
+
+  const { data: project, error: projectCreateError } = await supabase
+    .from('projects')
+    .insert(data)
+    .select()
+    .single();
+
+  if (!projectCreateError) {
+    await supabase.from('projects_users').insert({
+      projectId: project.id,
+      userId: session.user.id,
+      role: 'SUPERVISOR'
+    });
+  }
+
+  return res.json({ project })
 }
 
 async function updateProject({

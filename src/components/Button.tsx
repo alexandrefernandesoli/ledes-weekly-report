@@ -15,7 +15,7 @@ export function Button({
   return (
     <button
       className={clsx(
-        'w-full cursor-pointer bg-gray-900 text-white py-2 px-3 rounded-lg hover:bg-gray-800 transition-colors',
+        'flex h-fit w-fit cursor-pointer items-center gap-1 rounded-lg bg-gray-900 py-2 px-3 text-white transition-colors hover:bg-gray-800',
         className
       )}
       {...props}

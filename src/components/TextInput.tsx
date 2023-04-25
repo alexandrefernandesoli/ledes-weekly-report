@@ -1,7 +1,7 @@
-import { InputHTMLAttributes, ReactNode } from 'react';
 import { Slot } from '@radix-ui/react-slot';
 import clsx from 'clsx';
-import { UseFormRegister, UseFormRegisterReturn } from 'react-hook-form';
+import { InputHTMLAttributes, ReactNode } from 'react';
+import { UseFormRegisterReturn } from 'react-hook-form';
 
 interface TextInputRootProps {
   children: ReactNode;
@@ -12,7 +12,7 @@ function TextInputRoot({ children, className }: TextInputRootProps) {
   return (
     <div
       className={clsx(
-        'flex items-center h-11 gap-3 py-4 px-3 rounded-lg bg-gray-100 w-full outline-none focus-within:ring-2 ring-white',
+        'flex h-11 w-full items-center gap-3 rounded-lg bg-gray-100 py-4 px-3 outline-none ring-white focus-within:ring-2',
         className
       )}
     >
@@ -33,7 +33,7 @@ function TextInputInput({
   return (
     <input
       className={clsx(
-        'bg-transparent text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none flex-1',
+        'flex-1 bg-transparent text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none',
         className
       )}
       {...register}
@@ -47,7 +47,7 @@ interface TextInputIconProps {
 }
 
 function TextInputIcon(props: TextInputIconProps) {
-  return <Slot className="w-5 h-5 text-gray-600">{props.children}</Slot>;
+  return <Slot className="h-5 w-5 text-gray-600">{props.children}</Slot>;
 }
 
 export const TextInput = {

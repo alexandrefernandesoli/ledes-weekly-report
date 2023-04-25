@@ -1,30 +1,55 @@
-import { Header, ReportsList } from '../../../components';
-import { useRouter } from 'next/router';
-import { FaCalendarAlt, FaPlus } from 'react-icons/fa';
-import moment from 'moment';
+import {
+  ArrowDownTrayIcon,
+  CalendarIcon,
+  EyeIcon,
+  UserIcon,
+} from '@heroicons/react/24/outline';
+import { PlusIcon, UserGroupIcon } from '@heroicons/react/24/solid';
 import { createServerSupabaseClient } from '@supabase/auth-helpers-nextjs';
-import { Button } from '../../../components/Button';
+import { useSupabaseClient } from '@supabase/auth-helpers-react';
+import { Database } from 'firebase-admin/lib/database/database';
+import moment from 'moment';
 import { GetServerSidePropsContext } from 'next';
-import { ProjectPrefModal } from '../../../components/ProjectPrefModal';
-import { useProject } from '../../../lib/useProject';
+import { useRouter } from 'next/router';
+import { useEffect, useState } from 'react';
+import { FaCalendarAlt, FaPlus } from 'react-icons/fa';
+import { Button } from '../../../components/Button';
 import MainLayout from '../../../components/MainLayout';
+import { ProjectPrefModal } from '../../../components/ProjectPrefModal';
+import { ProjectType, useProject } from '../../../lib/useProject';
 
 const Project = () => {
   const {
     query: { projectId },
   } = useRouter();
-
+  const [reports, setReports] = useState<any[]>([]);
+  const supabase = useSupabaseClient<Database>();
   const router = useRouter();
 
   const { project, isLoading, mutate } = useProject(projectId as string);
 
+  useEffect(() => {
+    console.log({ isLoading, project });
+    if (!isLoading && project.myRole === 'SUPERVISOR') {
+      supabase
+        .from('reports')
+        .select('*, users (name, email)')
+        .eq('projectId', project.id)
+        .then(({ data, error }) => {
+          if (!error) {
+            setReports(data);
+          }
+        });
+    }
+  }, [project]);
+
   return (
     <MainLayout>
       {isLoading ? (
-        <div className="h-full flex items-center justify-center" role="status">
+        <div className="flex h-full items-center justify-center" role="status">
           <svg
             aria-hidden="true"
-            className="inline w-10 h-10 mr-2 text-gray-200 animate-spin dark:text-gray-600 fill-zinc-900"
+            className="mr-2 inline h-10 w-10 animate-spin fill-zinc-900 text-gray-200 dark:text-gray-600"
             viewBox="0 0 100 101"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
@@ -42,46 +67,117 @@ const Project = () => {
         </div>
       ) : (
         <>
-          <div className="flex items-center mt-3 justify-between">
-            <h1 className="text-2xl">{project.name}</h1>
+          <h1 className="mb-1 text-3xl">{project.name}</h1>
+
+          <p className="mb-2">{project.description}</p>
+
+          <div className="flex gap-2">
+            <Button
+              className="bg-sky-700 text-sm hover:bg-sky-600"
+              onClick={() => router.push(`/projects/${projectId}/members`)}
+            >
+              <UserGroupIcon className="w-4" />
+              Membros
+            </Button>
+            <Button
+              className="bg-green-700 text-sm hover:bg-green-600"
+              onClick={() => router.push(`/projects/${projectId}/report`)}
+            >
+              <PlusIcon className="w-4" />
+              Novo relatório
+            </Button>
             {project.myRole === 'SUPERVISOR' ? (
               <ProjectPrefModal project={project} mutate={mutate} />
             ) : (
-              <Button
-                className="w-max flex items-center gap-1 text-xs"
-                onClick={() => router.push(`/projects/${projectId}/new-report`)}
-              >
-                <FaPlus />
-                Novo relatório
-              </Button>
+              ''
             )}
           </div>
-          <p className="mt-1 text-sm">Descrição: {project.description}</p>
-          <p className="mt-1 mb-2 text-xs">
-            Membros:{' '}
-            {project.users.map((user: any) => (
-              <span key={user.id}>{user.name}</span>
-            ))}
-          </p>
-          <div className="flex flex-col gap-2">
-            {project.reports.map((report: any) => (
-              <div
-                key={report.id}
-                className="bg-gray-100 text-gray-900 flex flex-col rounded-lg px-4 py-3 text-sm leading-2"
-              >
-                <span className="flex items-center text-sm text-gray-500 gap-1">
-                  Relatório de
-                  <span className="w-30">
-                    {moment(report.submittedAt).format('DD/MM/YY hh:mm:ss')}
-                  </span>
-                  <FaCalendarAlt />
-                </span>
-              </div>
-            ))}
-          </div>
+
+          <div className="my-2 h-[1px] w-full border-b border-dashed"></div>
+
+          <h2 className="mb-2 text-xl">Relatórios</h2>
+
+          {project.myRole === 'SUPERVISOR' ? (
+            <ReportsListSupervisor reports={reports} />
+          ) : (
+            <ReportsListMember project={project} />
+          )}
         </>
       )}
     </MainLayout>
+  );
+};
+
+const ReportsListSupervisor = ({ reports }: { reports: any[] }) => {
+  return (
+    <div className="flex flex-col gap-1">
+      {reports.length > 0 ? (
+        <>
+          <div className="grid grid-cols-3 bg-gray-200 text-left  font-semibold text-gray-900">
+            <div className="flex items-center gap-1 px-4 py-3">
+              <UserIcon className="h-5" /> Submetido por
+            </div>
+            <div className="flex items-center gap-1 px-4 py-3">
+              <CalendarIcon className="h-5" /> Data de submissão
+            </div>
+            <div className="px-4 py-3"></div>
+          </div>
+          {reports.map((report, idx) => (
+            <div key={report.id} className="grid grid-cols-3  bg-gray-200">
+              <div className="flex items-center gap-1 whitespace-nowrap px-4 py-3 text-sm leading-tight text-gray-900">
+                <div>
+                  <div className="font-semibold">{report.users.name}</div>
+                  <div className="text-gray-700">{report.users.email}</div>
+                </div>
+              </div>
+              <div className="flex flex-col px-4  py-3 text-sm leading-tight text-gray-900">
+                <span className="font-semibold">
+                  {moment(report.submittedAt).format('DD/MM/YYYY')}
+                </span>
+                <span className="text-gray-700">
+                  {moment(report.submittedAt).format('HH:mm:ss')}
+                </span>
+              </div>
+              <div className="flex justify-end gap-1 px-4 py-3 text-sm  font-light text-gray-900">
+                <Button className="hover: flex items-center gap-1 rounded-full p-2 text-xs font-semibold uppercase">
+                  <EyeIcon className="w-5" />
+                  Visualizar relatório
+                </Button>
+                <Button className="hover: flex items-center gap-1 rounded-full p-2 text-xs font-semibold uppercase">
+                  <ArrowDownTrayIcon className="w-5" />
+                  Baixar relatório
+                </Button>
+              </div>
+            </div>
+          ))}
+        </>
+      ) : (
+        <div className=" bg-gray-200 py-3 px-4 text-center  font-semibold text-gray-900">
+          Você não possui relatórios neste projeto
+        </div>
+      )}
+    </div>
+  );
+};
+
+const ReportsListMember = ({ project }: { project: ProjectType }) => {
+  return (
+    <div className="flex flex-col gap-2">
+      {project.reports.map((report: any) => (
+        <div
+          key={report.id}
+          className="leading-2 flex flex-col rounded-lg bg-gray-100 px-4 py-3 text-sm text-gray-900"
+        >
+          <span className="flex items-center gap-1 text-sm text-gray-500">
+            Relatório de
+            <span className="w-30">
+              {moment(report.submittedAt).format('DD/MM/YY hh:mm:ss')}
+            </span>
+            <FaCalendarAlt />
+          </span>
+        </div>
+      ))}
+    </div>
   );
 };
 
@@ -101,10 +197,16 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
     };
   }
 
+  const { data: userProfile, error: profileQueryError } = await supabase
+    .from('users')
+    .select('*')
+    .eq('id', session.user.id)
+    .limit(1)
+    .single();
+
   return {
     props: {
-      initialSession: session,
-      user: session.user,
+      userProfile,
     },
   };
 };
