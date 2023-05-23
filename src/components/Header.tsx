@@ -1,32 +1,29 @@
-'use client';
+'use client'
 
 import {
   AcademicCapIcon,
   ArrowLeftOnRectangleIcon,
-  BellAlertIcon,
-  CalendarIcon,
-  ChatBubbleLeftIcon,
   ShieldCheckIcon,
   UserIcon,
-} from '@heroicons/react/24/solid';
-import * as Avatar from '@radix-ui/react-avatar';
-import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
-import { useSupabaseClient } from '@supabase/auth-helpers-react';
-import Link from 'next/link';
-import { useRouter } from 'next/router';
+} from '@heroicons/react/24/solid'
+import * as Avatar from '@radix-ui/react-avatar'
+import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
+import Link from 'next/link'
+import { useRouter } from 'next/navigation'
+import { useSupabase } from '../app/supabase-provider'
 
 export const Header = () => {
-  const router = useRouter();
-  const supabase = useSupabaseClient();
+  const { supabase } = useSupabase()
+  const { push } = useRouter()
 
   const signOutHandler = async () => {
-    await supabase.auth.signOut();
+    await supabase.auth.signOut()
 
-    router.replace('/login');
-  };
+    push('/login')
+  }
 
   return (
-    <div className="z-20 flex h-16 w-full items-center justify-between bg-gray-100 px-4 shadow-lg ">
+    <div className="fixed z-20 flex h-16 w-full items-center justify-between bg-gray-100 px-4 shadow-lg">
       <Link href="/">
         <div className="flex w-48 cursor-pointer items-center gap-1 text-xl leading-none">
           <AcademicCapIcon className="w-16 text-primary" />
@@ -35,10 +32,13 @@ export const Header = () => {
       </Link>
 
       <div className="flex-column flex items-center justify-center gap-2 text-primary">
-        <ShieldCheckIcon className="w-8 cursor-pointer  text-red-700 transition-colors hover:text-red-500" />
-        <CalendarIcon className="w-8  cursor-pointer transition-colors hover:text-gray-700" />
+        <Link href="/admin">
+          <ShieldCheckIcon className="w-8 cursor-pointer  text-red-700 transition-colors hover:text-red-500" />
+        </Link>
+
+        {/* <CalendarIcon className="w-8  cursor-pointer transition-colors hover:text-gray-700" />
         <BellAlertIcon className="w-8  cursor-pointer transition-colors hover:text-gray-700" />
-        <ChatBubbleLeftIcon className="w-8  cursor-pointer transition-colors hover:text-gray-700" />
+        <ChatBubbleLeftIcon className="w-8  cursor-pointer transition-colors hover:text-gray-700" /> */}
         <DropdownMenu.Root>
           <DropdownMenu.Trigger asChild>
             <Avatar.Root className="flex h-12 w-12 cursor-pointer items-center justify-center rounded-full bg-gray-200">
@@ -66,5 +66,5 @@ export const Header = () => {
         </DropdownMenu.Root>
       </div>
     </div>
-  );
-};
+  )
+}

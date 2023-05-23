@@ -1,33 +1,39 @@
-import { PlusIcon } from '@heroicons/react/24/outline';
-import * as Dialog from '@radix-ui/react-dialog';
-import axios from 'axios';
-import { useState } from 'react';
-import { HiOutlineX } from 'react-icons/hi';
-import { Button } from './Button';
-import { TextInput } from './TextInput';
+'use client'
 
-export const NewProjectModal = ({ mutate }: any) => {
-  const [open, setOpen] = useState(false);
-  const [projectName, setProjectName] = useState('');
-  const [projectDescription, setProjectDescription] = useState('');
-  const [projectType, setProjectType] = useState('');
+import { PlusIcon } from '@heroicons/react/24/outline'
+import * as Dialog from '@radix-ui/react-dialog'
+import axios from 'axios'
+import { useRouter } from 'next/navigation'
+import { useState } from 'react'
+import { HiOutlineX } from 'react-icons/hi'
+import { Button } from './Button'
+import { TextInput } from './TextInput'
+
+export const NewProjectModal = () => {
+  const [open, setOpen] = useState(false)
+  const { push } = useRouter()
+
+  const [projectName, setProjectName] = useState('')
+  const [projectDescription, setProjectDescription] = useState('')
+  const [projectType, setProjectType] = useState('')
 
   const newProject = async () => {
-    if (projectName.trim() === '' || projectDescription.trim() === '') return;
+    if (projectName.trim() === '' || projectDescription.trim() === '') return
 
     try {
-      await axios.post('/api/projects', {
+      const response = await axios.post('/api/projects', {
         name: projectName,
         description: projectDescription,
         type: projectType,
-      });
+      })
 
-      await mutate();
-      setOpen(false);
+      setOpen(false)
+
+      push(`/project/${response.data.id}`)
     } catch (error) {
-      console.log(error);
+      console.log(error)
     }
-  };
+  }
 
   return (
     <Dialog.Root open={open} onOpenChange={setOpen}>
@@ -39,7 +45,7 @@ export const NewProjectModal = ({ mutate }: any) => {
       </Dialog.Trigger>
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 z-50 bg-gray-900 bg-opacity-10 " />
-        <Dialog.Content className="fixed top-1/2 left-1/2 z-50 max-h-[85vh] w-[90vw] max-w-[450px] -translate-x-1/2 -translate-y-1/2 rounded-lg bg-white p-4">
+        <Dialog.Content className="fixed left-1/2 top-1/2 z-50 max-h-[85vh] w-[90vw] max-w-[450px] -translate-x-1/2 -translate-y-1/2 rounded-lg bg-white p-4">
           <Dialog.Title className="text-xl text-gray-900">
             Criar novo projeto
           </Dialog.Title>
@@ -92,7 +98,7 @@ export const NewProjectModal = ({ mutate }: any) => {
 
           <div className="mt-4 flex w-full justify-end">
             <button
-              className="w-fit rounded-md bg-green-600 py-1 px-2 text-sm text-gray-50 hover:bg-green-500 disabled:bg-gray-200 disabled:text-gray-300"
+              className="w-fit rounded-md bg-green-600 px-2 py-1 text-sm text-gray-50 hover:bg-green-500 disabled:bg-gray-200 disabled:text-gray-300"
               onClick={() => newProject()}
             >
               Salvar
@@ -101,7 +107,7 @@ export const NewProjectModal = ({ mutate }: any) => {
 
           <Dialog.Close asChild>
             <button
-              className="absolute top-3 right-3 inline-flex h-7 w-7 items-center justify-center rounded-full text-3xl text-red-700 hover:text-red-600"
+              className="absolute right-3 top-3 inline-flex h-7 w-7 items-center justify-center rounded-full text-3xl text-red-700 hover:text-red-600"
               aria-label="Close"
             >
               <HiOutlineX />
@@ -110,5 +116,5 @@ export const NewProjectModal = ({ mutate }: any) => {
         </Dialog.Content>
       </Dialog.Portal>
     </Dialog.Root>
-  );
-};
+  )
+}

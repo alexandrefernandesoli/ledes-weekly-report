@@ -1,48 +1,63 @@
-import { Cog8ToothIcon } from '@heroicons/react/24/solid';
-import * as Dialog from '@radix-ui/react-dialog';
-import axios from 'axios';
-import { useState } from 'react';
-import { FaCog, FaPlus } from 'react-icons/fa';
-import { HiOutlineX } from 'react-icons/hi';
-import { KeyedMutator } from 'swr';
-import { ProjectType } from '../lib/useProject';
-import { Button } from './Button';
-import { TextInput } from './TextInput';
+'use client'
+
+import { updateProjectAction } from '@/app/project/[id]/actions'
+import { Cog8ToothIcon } from '@heroicons/react/24/solid'
+import { Project, ProjectMember, User } from '@prisma/client'
+import * as Dialog from '@radix-ui/react-dialog'
+import axios from 'axios'
+import { XIcon } from 'lucide-react'
+import { useState } from 'react'
+import { Button } from './Button'
+import { TextInput } from './TextInput'
 
 export const ProjectPrefModal = ({
   project,
-  mutate,
 }: {
-  project: ProjectType;
-  mutate: KeyedMutator<any>;
+  project: Project & { members: (ProjectMember & { member: User })[] }
 }) => {
-  const [open, setOpen] = useState(false);
-  const [projectName, setProjectName] = useState(project.name);
+  const [open, setOpen] = useState(false)
+  const [projectName, setProjectName] = useState(project.name)
   const [projectDescription, setProjectDescription] = useState(
-    project.description
-  );
+    project.description,
+  )
+  const [memberEmail, setMemberEmail] = useState('')
 
   const updateProject = async () => {
     if (
       projectName === project.name &&
       projectDescription === project.description
     )
-      return;
+      return
 
     try {
-      await axios.put('/api/projects', {
-        id: project.id,
+      // await axios.put(`/api/projects/${project.id}`, {
+      //   name: projectName,
+      //   description: projectDescription,
+      // })
+
+      // project.name = projectName
+      // project.description = projectDescription
+
+      await updateProjectAction({
         name: projectName,
         description: projectDescription,
-      });
+        projectId: project.id,
+      })
 
-      await mutate();
-
-      setOpen(false);
+      setOpen(false)
     } catch (error) {
-      console.log(error);
+      console.log(error)
     }
-  };
+  }
+
+  const addNewMember = async () => {
+    const response = await axios.post('/api/projects/invite', {
+      projectId: project.id,
+      email: memberEmail,
+    })
+
+    console.log(response)
+  }
 
   return (
     <Dialog.Root open={open} onOpenChange={setOpen}>
@@ -54,12 +69,25 @@ export const ProjectPrefModal = ({
       </Dialog.Trigger>
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 z-50 bg-gray-900 bg-opacity-10" />
-        <Dialog.Content className="fixed top-1/2 left-1/2 z-50 max-h-[85vh] w-[90vw] max-w-[450px] -translate-x-1/2 -translate-y-1/2 rounded-lg bg-white p-4">
-          <Dialog.Title className="text-xl text-gray-900">
-            Preferências
-          </Dialog.Title>
-          <label htmlFor="name">
-            <div className="mt-2 text-sm text-gray-900">Nome do projeto</div>
+        <Dialog.Content className="fixed left-1/2 top-1/2 z-50 flex w-[90vw] max-w-[960px] -translate-x-1/2 -translate-y-1/2 flex-col gap-2 rounded-lg bg-gray-50 p-6">
+          <div className="flex items-center justify-between">
+            <Dialog.Title className="text-2xl text-gray-900">
+              Preferências do projeto
+            </Dialog.Title>
+            <Dialog.Close asChild>
+              <button
+                className="rounded-fulltext-3xl items-center justify-center text-red-700 hover:text-red-600"
+                aria-label="Close"
+              >
+                <XIcon className="h-8 w-8" />
+              </button>
+            </Dialog.Close>
+          </div>
+
+          <div className="flex flex-col gap-1">
+            <label className="text-lg font-bold" htmlFor="name">
+              Nome do projeto
+            </label>
             <TextInput.Root>
               <TextInput.Input
                 id="name"
@@ -67,11 +95,11 @@ export const ProjectPrefModal = ({
                 defaultValue={projectName}
               />
             </TextInput.Root>
-          </label>
-          <label htmlFor="description">
-            <div className="mt-2 text-sm text-gray-900">
+          </div>
+          <div className="flex flex-col gap-1">
+            <label className="text-lg font-bold" htmlFor="description">
               Descrição do projeto
-            </div>
+            </label>
             <TextInput.Root>
               <TextInput.Input
                 id="description"
@@ -79,26 +107,38 @@ export const ProjectPrefModal = ({
                 defaultValue={projectDescription}
               />
             </TextInput.Root>
-          </label>
-          <div className="mt-2 text-sm text-gray-900">Membros do projeto</div>
-          <div className="flex w-full flex-wrap items-center gap-1 text-gray-800">
-            {project.users.map((user: any) => (
-              <div
-                key={user.id}
-                className="w-fit rounded-lg bg-gray-100 py-1 px-2 text-xs"
-              >
-                {user.name.split(' ')[0]}
-              </div>
-            ))}
-
-            <button className="flex h-6 w-6 items-center justify-center rounded-full px-0 py-0 text-xs">
-              <FaPlus />
-            </button>
           </div>
 
+          <div className="flex flex-col gap-1">
+            <label htmlFor="newUserEmail" className="text-lg font-bold">
+              Cadastrar novo membro
+            </label>
+            <div className="flex gap-1">
+              <TextInput.Root>
+                <TextInput.Input
+                  id="newUserEmail"
+                  placeholder="Ex.: johndoe@email.com"
+                  onChange={(ev) => setMemberEmail(ev.target.value)}
+                />
+              </TextInput.Root>
+              <Button onClick={addNewMember}>Adicionar</Button>
+            </div>
+          </div>
+
+          <div className="w-full">
+            <div className="text-lg font-bold text-gray-900">
+              Membros do projeto
+            </div>
+            {project.members.map((member) => (
+              <div key={member.member.id} className="grid grid-cols-2 ">
+                <div className="truncate">{member.member.name}</div>
+                <p className="truncate">{member.member.email}</p>
+              </div>
+            ))}
+          </div>
           <div className="mt-4 flex w-full justify-end">
-            <button
-              className="w-fit rounded-md bg-green-600 py-1 px-2 text-sm text-gray-50 hover:bg-green-500 disabled:bg-gray-200 disabled:text-gray-300"
+            <Button
+              className="px-2text-gray-50 w-fit rounded-md bg-green-600 hover:bg-green-500 disabled:cursor-auto disabled:bg-gray-200 disabled:text-gray-300"
               onClick={() => updateProject()}
               disabled={
                 projectName === project.name &&
@@ -106,19 +146,10 @@ export const ProjectPrefModal = ({
               }
             >
               Salvar
-            </button>
+            </Button>
           </div>
-
-          <Dialog.Close asChild>
-            <button
-              className="absolute top-3 right-3 inline-flex h-7 w-7 items-center justify-center rounded-full text-3xl text-red-700 hover:text-red-600"
-              aria-label="Close"
-            >
-              <HiOutlineX />
-            </button>
-          </Dialog.Close>
         </Dialog.Content>
       </Dialog.Portal>
     </Dialog.Root>
-  );
-};
+  )
+}

@@ -1,4 +1,4 @@
-'use client';
+'use client'
 
 import {
   ArrowDownTrayIcon,
@@ -6,20 +6,20 @@ import {
   ChevronDownIcon,
   ChevronUpIcon,
   DocumentTextIcon,
-} from '@heroicons/react/24/solid';
-import * as CollapsiblePrimitive from '@radix-ui/react-collapsible';
-import moment from 'moment';
-import Link from 'next/link';
-import { useState } from 'react';
+} from '@heroicons/react/24/solid'
+import * as CollapsiblePrimitive from '@radix-ui/react-collapsible'
+import moment from 'moment'
+import Link from 'next/link'
+import { useState } from 'react'
 
 export const ReportsList = ({
   reports,
   isLoading,
 }: {
-  reports: any[];
-  isLoading: boolean;
+  reports: any[]
+  isLoading: boolean
 }) => {
-  const [isReportsOpen, setIsReportsOpen] = useState(true);
+  const [isReportsOpen, setIsReportsOpen] = useState(true)
 
   return (
     <CollapsiblePrimitive.Collapsible
@@ -45,7 +45,7 @@ export const ReportsList = ({
           >
             <div className="flex items-center gap-3">
               <DocumentTextIcon className="w-6 text-gray-800" />
-              <Link href={`/reports/${report.id}`}>{report.projectName}</Link>
+              <Link href={`/reports/${report.id}`}>{report.project.name}</Link>
             </div>
 
             <div className="flex items-center gap-1 justify-self-center text-sm">
@@ -64,5 +64,5 @@ export const ReportsList = ({
         ))}
       </CollapsiblePrimitive.CollapsibleContent>
     </CollapsiblePrimitive.Collapsible>
-  );
-};
+  )
+}

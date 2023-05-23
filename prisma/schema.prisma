@@ -1,0 +1,64 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model User {
+  id        String          @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  email     String          @unique
+  name      String
+  role      UserRole        @default(STUDENT)
+  projects  ProjectMember[]
+  reports   Report[]
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @default(now())
+}
+
+model ProjectMember {
+  role       ProjectRole @default(STUDENT)
+  member     User        @relation(fields: [userId], references: [id])
+  userId     String      @db.Uuid
+  project    Project     @relation(fields: [projectId], references: [id])
+  projectId  String      @db.Uuid
+  assignedAt DateTime    @default(now())
+
+  @@id([userId, projectId])
+}
+
+enum UserRole {
+  STUDENT
+  SUPERVISOR
+  ADMIN
+}
+
+enum ProjectRole {
+  STUDENT
+  SUPERVISOR
+}
+
+model Project {
+  id          String          @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  name        String
+  description String
+  type        String
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @default(now())
+  members     ProjectMember[]
+  reports     Report[]
+}
+
+model Report {
+  id        String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  content   Json     @default("{ \"weekTasks\": [] }") @db.Json
+  projectId String   @db.Uuid
+  userId    String   @db.Uuid
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
+  project   Project  @relation(fields: [projectId], references: [id])
+}
