@@ -21,7 +21,10 @@ export async function POST(request: NextRequest) {
 
   const bodySchema = z.object({
     projectId: z.string(),
-    content: z.string(),
+    content: z.object({
+      tasksThisWeek: z.string().array(),
+      tasksNextWeek: z.string().array(),
+    }),
   })
 
   const { content, projectId } = bodySchema.parse(await request.json())

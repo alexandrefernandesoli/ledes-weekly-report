@@ -1,11 +1,10 @@
 'use client'
 
 import { Button } from '@/components/Button'
-import MainLayout from '@/components/MainLayout'
 import { TextInput } from '@/components/TextInput'
 import { PlusCircleIcon } from '@heroicons/react/24/outline'
-import { PaperAirplaneIcon } from '@heroicons/react/24/solid'
 import axios from 'axios'
+import { SendIcon } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { ChangeEvent, useState } from 'react'
 import { FaTimes } from 'react-icons/fa'
@@ -63,26 +62,26 @@ const NewReport = ({ params }: { params: { id: string } }) => {
 
     await axios.post('/api/reports', {
       projectId: params.id,
-      content: JSON.stringify({
+      content: {
         tasksThisWeek,
         tasksNextWeek,
-      }),
+      },
     })
 
     router.back()
   }
 
   return (
-    <MainLayout>
+    <>
       <form className="flex w-full flex-col" onSubmit={onSubmitForm}>
-        <div className="flex items-center justify-between">
-          <h1 className="mb-4 mt-4 text-2xl">Novo relatório</h1>
+        <div className="mb-4 flex items-center justify-between">
+          <h1 className="text-3xl">Novo relatório</h1>
           <Button
-            className="flex w-fit items-center gap-2 bg-emerald-600"
+            className="flex w-fit items-center gap-2 bg-green-700 hover:bg-green-600"
             type="submit"
           >
             Enviar
-            <PaperAirplaneIcon className="w-6" />
+            <SendIcon className="w-6" />
           </Button>
         </div>
 
@@ -140,7 +139,7 @@ const NewReport = ({ params }: { params: { id: string } }) => {
           </div>
         </div>
       </form>
-    </MainLayout>
+    </>
   )
 }
 

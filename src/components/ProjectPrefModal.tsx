@@ -1,11 +1,11 @@
 'use client'
 
-import { updateProjectAction } from '@/app/project/[id]/actions'
-import { Cog8ToothIcon } from '@heroicons/react/24/solid'
+import { updateProjectAction } from '@/app/dashboard/project/[id]/actions'
 import { Project, ProjectMember, User } from '@prisma/client'
 import * as Dialog from '@radix-ui/react-dialog'
 import axios from 'axios'
-import { XIcon } from 'lucide-react'
+import { Cog, XIcon } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { Button } from './Button'
 import { TextInput } from './TextInput'
@@ -21,6 +21,10 @@ export const ProjectPrefModal = ({
     project.description,
   )
   const [memberEmail, setMemberEmail] = useState('')
+  const [members, setMembers] = useState(
+    project.members.map((member) => member.member),
+  )
+  const router = useRouter()
 
   const updateProject = async () => {
     if (
@@ -30,20 +34,13 @@ export const ProjectPrefModal = ({
       return
 
     try {
-      // await axios.put(`/api/projects/${project.id}`, {
-      //   name: projectName,
-      //   description: projectDescription,
-      // })
-
-      // project.name = projectName
-      // project.description = projectDescription
-
       await updateProjectAction({
         name: projectName,
         description: projectDescription,
         projectId: project.id,
       })
 
+      router.refresh()
       setOpen(false)
     } catch (error) {
       console.log(error)
@@ -51,21 +48,25 @@ export const ProjectPrefModal = ({
   }
 
   const addNewMember = async () => {
-    const response = await axios.post('/api/projects/invite', {
-      projectId: project.id,
-      email: memberEmail,
-    })
+    try {
+      const response = await axios.post('/api/projects/invite', {
+        projectId: project.id,
+        email: memberEmail,
+      })
 
-    console.log(response)
+      setMembers((members) => [...members, response.data])
+    } catch (err) {
+      console.log(err)
+    }
   }
 
   return (
     <Dialog.Root open={open} onOpenChange={setOpen}>
       <Dialog.Trigger asChild>
-        <Button className=" bg-rose-700 text-sm hover:bg-rose-600">
-          <Cog8ToothIcon className="w-5" />
+        <button className="align-center flex items-center gap-2 rounded-lg bg-red-800 px-3 py-2 text-sm text-zinc-50 hover:bg-red-700">
+          <Cog className="w-5" />
           Preferências do projeto
-        </Button>
+        </button>
       </Dialog.Trigger>
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 z-50 bg-gray-900 bg-opacity-10" />
@@ -129,10 +130,10 @@ export const ProjectPrefModal = ({
             <div className="text-lg font-bold text-gray-900">
               Membros do projeto
             </div>
-            {project.members.map((member) => (
-              <div key={member.member.id} className="grid grid-cols-2 ">
-                <div className="truncate">{member.member.name}</div>
-                <p className="truncate">{member.member.email}</p>
+            {members.map((member) => (
+              <div key={member.id} className="grid grid-cols-2 ">
+                <div className="truncate">{member.name}</div>
+                <p className="truncate">{member.email}</p>
               </div>
             ))}
           </div>

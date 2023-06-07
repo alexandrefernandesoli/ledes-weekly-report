@@ -35,7 +35,12 @@ export const metadata = {
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="pt">
-      <body className={source.className}>
+      <body
+        className={
+          '-z-20 flex min-h-screen flex-col items-center bg-neutral-200 ' +
+          source.className
+        }
+      >
         <SupabaseProvider session={null}>
           {/* <SupabaseListener serverAccessToken={session?.access_token} /> */}
           {children}

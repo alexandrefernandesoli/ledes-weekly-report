@@ -45,7 +45,9 @@ export const ReportsList = ({
           >
             <div className="flex items-center gap-3">
               <DocumentTextIcon className="w-6 text-gray-800" />
-              <Link href={`/reports/${report.id}`}>{report.project.name}</Link>
+              <Link href={`/dashboard/reports/${report.id}`}>
+                {report.project.name}
+              </Link>
             </div>
 
             <div className="flex items-center gap-1 justify-self-center text-sm">

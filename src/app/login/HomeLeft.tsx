@@ -7,7 +7,7 @@ export const HomeLeft = () => {
       <Link href={'/login'}>
         <div className="flex cursor-pointer items-center gap-4">
           <FaMailBulk className="text-6xl text-primary md:text-8xl" />
-          <h1 className="text-2xl md:text-5xl">
+          <h1 className="text-3xl md:text-5xl">
             Ledes Weekly <br /> Report
           </h1>
         </div>

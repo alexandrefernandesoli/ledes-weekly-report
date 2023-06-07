@@ -6,7 +6,6 @@ import axios from 'axios'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { HiOutlineX } from 'react-icons/hi'
-import { Button } from './Button'
 import { TextInput } from './TextInput'
 
 export const NewProjectModal = () => {
@@ -29,7 +28,7 @@ export const NewProjectModal = () => {
 
       setOpen(false)
 
-      push(`/project/${response.data.id}`)
+      push(`/dashboard/project/${response.data.id}`)
     } catch (error) {
       console.log(error)
     }
@@ -38,10 +37,10 @@ export const NewProjectModal = () => {
   return (
     <Dialog.Root open={open} onOpenChange={setOpen}>
       <Dialog.Trigger asChild>
-        <Button className="px-2 py-1 text-sm font-semibold">
+        <button className="align-center flex items-center gap-2 rounded-lg bg-zinc-900 px-3 py-2 text-sm font-semibold text-zinc-50">
           <PlusIcon className="h-5" />
           Novo projeto
-        </Button>
+        </button>
       </Dialog.Trigger>
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 z-50 bg-gray-900 bg-opacity-10 " />
@@ -86,15 +85,6 @@ export const NewProjectModal = () => {
               />
             </TextInput.Root>
           </label>
-
-          <div className="mt-2 flex items-center justify-between text-sm text-gray-900">
-            Membros
-            <button className="flex items-center justify-center gap-1 rounded-lg bg-gray-200 px-2 py-1 text-xs">
-              <PlusIcon className="w-4" />
-              Adicionar um membro
-            </button>
-          </div>
-          <div className="flex w-full flex-wrap items-center gap-1 text-gray-800"></div>
 
           <div className="mt-4 flex w-full justify-end">
             <button

@@ -1,6 +1,5 @@
 'use client'
 
-import Head from 'next/head'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { SubmitHandler, useForm } from 'react-hook-form'
@@ -55,77 +54,74 @@ const Register = () => {
   }
 
   return (
-    <>
-      <Head>
-        <title>Ledes Weekly Report - Cadastro</title>
-      </Head>
-      <main className="grid h-screen md:grid-flow-col md:grid-cols-2">
-        <HomeLeft />
+    <main className="grid h-screen w-full md:grid-flow-col md:grid-cols-2">
+      <HomeLeft />
 
-        <div className="flex flex-col items-center justify-center bg-primary text-gray-200">
-          <form
-            className="mt-4 flex flex-col gap-2 md:mt-0 md:w-[350px]"
-            onSubmit={handleSubmit(handleSignupSubmit)}
+      <div className="flex flex-col items-center justify-center bg-primary py-4">
+        <form
+          className="flex flex-col gap-2 rounded-lg bg-zinc-100 p-4 shadow-lg md:mt-0 md:w-[350px]"
+          onSubmit={handleSubmit(handleSignupSubmit)}
+        >
+          <h2 className="mb-2 text-2xl">Cadastre-se na nossa plataforma</h2>
+
+          <div>
+            <label htmlFor="name">Nome completo</label>
+            <TextInput.Root className="bg-zinc-200">
+              <TextInput.Input
+                type="text"
+                id="name"
+                placeholder="Digite seu nome"
+                register={register('name', { required: true })}
+              />
+            </TextInput.Root>
+          </div>
+
+          <div>
+            <label htmlFor="email">Email</label>
+            <TextInput.Root className="bg-zinc-200">
+              <TextInput.Input
+                type="text"
+                id="email"
+                placeholder="Digite seu email"
+                register={register('email', { required: true })}
+              />
+            </TextInput.Root>
+          </div>
+
+          <div>
+            <label htmlFor="password">Senha</label>
+            <TextInput.Root className="bg-zinc-200">
+              <TextInput.Input
+                type="password"
+                id="password"
+                placeholder="******"
+                register={register('password', { required: true })}
+              />
+            </TextInput.Root>
+          </div>
+
+          <div>
+            <label htmlFor="confirmPassword">Confirme sua senha</label>
+            <TextInput.Root className="bg-zinc-200">
+              <TextInput.Input
+                type="password"
+                id="confirmPassword"
+                placeholder="******"
+                register={register('confirmPassword', { required: true })}
+              />
+            </TextInput.Root>
+          </div>
+
+          <Button
+            disabled={loading}
+            className="mt-2 flex items-center justify-center  disabled:cursor-wait disabled:bg-gray-500"
+            type="submit"
           >
-            <h2 className="mb-2 text-xl">Cadastre-se</h2>
-
-            <label htmlFor="name">
-              <span>Nome completo</span>
-              <TextInput.Root>
-                <TextInput.Input
-                  type="text"
-                  id="name"
-                  placeholder="Digite seu nome"
-                  register={register('name', { required: true })}
-                />
-              </TextInput.Root>
-            </label>
-
-            <label htmlFor="email">
-              <span>Email</span>
-              <TextInput.Root>
-                <TextInput.Input
-                  type="text"
-                  id="email"
-                  placeholder="Digite seu email"
-                  register={register('email', { required: true })}
-                />
-              </TextInput.Root>
-            </label>
-            <label htmlFor="password">
-              <span>Senha</span>
-              <TextInput.Root>
-                <TextInput.Input
-                  type="password"
-                  id="password"
-                  placeholder="******"
-                  register={register('password', { required: true })}
-                />
-              </TextInput.Root>
-            </label>
-            <label htmlFor="confirmPassword">
-              <span>Confirme sua senha</span>
-              <TextInput.Root>
-                <TextInput.Input
-                  type="password"
-                  id="confirmPassword"
-                  placeholder="******"
-                  register={register('confirmPassword', { required: true })}
-                />
-              </TextInput.Root>
-            </label>
-
-            <Button
-              disabled={loading}
-              className="mt-2 disabled:cursor-wait disabled:bg-gray-500"
-              type="submit"
-            >
-              Criar minha conta
-            </Button>
-          </form>
-        </div>
-      </main>
-    </>
+            Criar minha conta
+          </Button>
+        </form>
+      </div>
+    </main>
   )
 }
 
