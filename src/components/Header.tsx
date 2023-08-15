@@ -1,41 +1,47 @@
 'use client'
 
 import { AcademicCapIcon } from '@heroicons/react/24/solid'
-import { User, UserRole } from '@prisma/client'
+// import { User, UserRole } from '@prisma/client'
 import * as Avatar from '@radix-ui/react-avatar'
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
-import axios from 'axios'
+// import axios from 'axios'
 import {
   FileBoxIcon,
   LogOutIcon,
-  ShieldCheckIcon,
+  // ShieldCheckIcon,
   User2Icon,
   UserCog,
   UserIcon,
 } from 'lucide-react'
 import Link from 'next/link'
-// import { useRouter } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
+// import { useEffect, useState } from 'react'
 import { useSupabase } from '../app/supabase-provider'
 
 export const Header = () => {
   const { supabase } = useSupabase()
-  // const { replace } = useRouter()
+  const router = useRouter()
 
-  const [user, setUser] = useState<User | null>(null)
+  // const [user, setUser] = useState<User | null>(null)
 
-  async function getUser() {
-    const response = await axios.get('/api/user')
+  // async function getUser() {
+  //   const response = await axios.get('/api/user')
 
-    setUser(response.data)
-  }
+  //   setUser(response.data)
+  // }
 
-  useEffect(() => {
-    getUser()
-  }, [])
+  // useEffect(() => {
+  //   getUser()
+  // }, [])
 
   const signOutHandler = async () => {
-    await supabase.auth.signOut()
+    const { error } = await supabase.auth.signOut()
+
+    if (error) {
+      window.alert(error.message)
+    } else {
+      router.push('/login')
+    }
   }
 
   return (
@@ -48,13 +54,13 @@ export const Header = () => {
       </Link>
 
       <div className="flex-column flex items-center justify-center gap-2">
-        {user && user.role === UserRole.ADMIN ? (
+        {/* {user && user.role === UserRole.ADMIN ? (
           <Link href="/dashboard/admin">
             <ShieldCheckIcon className="h-8 w-8 cursor-pointer  text-red-700 transition-colors hover:text-red-600" />
           </Link>
         ) : (
           <></>
-        )}
+        )} */}
 
         <DropdownMenu.Root>
           <DropdownMenu.Trigger asChild>
