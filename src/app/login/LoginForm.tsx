@@ -2,7 +2,6 @@
 
 import { Button } from '@/components/Button'
 import { TextInput } from '@/components/TextInput'
-import clsx from 'clsx'
 import { LockIcon, MailIcon } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
@@ -54,10 +53,10 @@ export default function LoginForm() {
       className="flex flex-col gap-2 rounded-lg bg-zinc-100 p-4 text-zinc-900 shadow-lg md:w-[350px]"
       onSubmit={handleSubmit(handleLoginSubmit)}
     >
-      <h2 className=" text-2xl">Você possui uma conta?</h2>
+      <h2 className="text-2xl">Você possui uma conta?</h2>
 
       {errorMessage ? (
-        <div className="bg-red-200 p-2 text-center font-bold text-red-900">
+        <div className="rounded-lg bg-red-200 p-2 text-center font-semibold text-red-600">
           {errorMessage}
         </div>
       ) : null}
@@ -66,19 +65,18 @@ export default function LoginForm() {
         <label className="font-semibold" htmlFor="email">
           Email
         </label>
-        <TextInput.Root
-          className={clsx(
-            'bg-gray-200',
-            errors.email && 'border-2 ring-2 ring-red-400',
-          )}
-        >
+        <TextInput.Root invalid={!!errors.email}>
           <MailIcon className="text-gray-600" />
           <TextInput.Input
-            type="email"
+            type="text"
             id="email"
             placeholder="johndoe@example.com"
             register={register('email', {
               required: 'O campo email é necessário.',
+              pattern: {
+                value: /^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/g,
+                message: 'O campo email deve ser um email válido.',
+              },
             })}
           />
         </TextInput.Root>
@@ -91,12 +89,7 @@ export default function LoginForm() {
         <label className="font-semibold" htmlFor="password">
           Senha
         </label>
-        <TextInput.Root
-          className={clsx(
-            'bg-gray-200',
-            errors.email && 'border-2 ring-2 ring-red-400',
-          )}
-        >
+        <TextInput.Root invalid={!!errors.password}>
           <LockIcon className="text-gray-600" />
           <TextInput.Input
             type="password"

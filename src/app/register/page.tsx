@@ -7,7 +7,6 @@ import { Button } from '../../components/Button'
 import { TextInput } from '../../components/TextInput'
 import { HomeLeft } from '@/app/login/HomeLeft'
 import { useSupabase } from '../supabase-provider'
-import clsx from 'clsx'
 
 type Inputs = {
   name: string
@@ -85,12 +84,7 @@ const Register = () => {
             <label className="font-semibold" htmlFor="name">
               Nome completo
             </label>
-            <TextInput.Root
-              className={clsx(
-                'bg-gray-200',
-                errors.name && 'border-2 ring-2 ring-red-400',
-              )}
-            >
+            <TextInput.Root invalid={!!errors.name}>
               <TextInput.Input
                 type="text"
                 id="name"
@@ -110,19 +104,18 @@ const Register = () => {
             <label className="font-semibold" htmlFor="email">
               Email
             </label>
-            <TextInput.Root
-              className={clsx(
-                'bg-gray-200',
-                errors.email && 'border-2 ring-2 ring-red-400',
-              )}
-            >
+            <TextInput.Root invalid={!!errors.email}>
               <TextInput.Input
-                type="email"
+                type="text"
                 id="email"
                 name="email"
                 placeholder="Digite seu email"
                 register={register('email', {
                   required: 'O campo email é necessário.',
+                  pattern: {
+                    value: /^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/g,
+                    message: 'O campo email deve ser um email válido.',
+                  },
                 })}
               />
             </TextInput.Root>
@@ -137,12 +130,7 @@ const Register = () => {
             <label className="font-semibold" htmlFor="password">
               Senha
             </label>
-            <TextInput.Root
-              className={clsx(
-                'bg-gray-200',
-                errors.password && 'border-2 ring-2 ring-red-400',
-              )}
-            >
+            <TextInput.Root invalid={!!errors.password}>
               <TextInput.Input
                 type="password"
                 id="password"
@@ -168,12 +156,7 @@ const Register = () => {
             <label className="font-semibold" htmlFor="confirmPassword">
               Confirme sua senha
             </label>
-            <TextInput.Root
-              className={clsx(
-                'bg-gray-200',
-                errors.confirmPassword && 'border-2 ring-2 ring-red-400',
-              )}
-            >
+            <TextInput.Root invalid={!!errors.confirmPassword}>
               <TextInput.Input
                 type="password"
                 id="confirmPassword"

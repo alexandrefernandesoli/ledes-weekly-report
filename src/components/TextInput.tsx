@@ -6,13 +6,17 @@ import { UseFormRegisterReturn } from 'react-hook-form'
 interface TextInputRootProps {
   children: ReactNode
   className?: string
+  invalid?: boolean
 }
 
-function TextInputRoot({ children, className }: TextInputRootProps) {
+function TextInputRoot({ children, className, invalid }: TextInputRootProps) {
   return (
     <div
       className={clsx(
-        'flex h-11 w-full items-center gap-3 rounded-lg bg-gray-100 px-3 py-4 outline-none ring-white focus-within:ring-2',
+        'flex h-11 w-full items-center gap-3 rounded-lg border  px-3 py-4 focus-within:ring-1  focus:outline-none',
+        invalid
+          ? 'border-red-400 focus-within:ring-red-400'
+          : 'border-zinc-300 focus-within:ring-zinc-300',
         className,
       )}
     >
@@ -33,7 +37,7 @@ function TextInputInput({
   return (
     <input
       className={clsx(
-        'flex-1 bg-transparent text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none',
+        'flex-1 bg-transparent text-sm text-zinc-900 placeholder:text-zinc-400 focus:outline-none',
         className,
       )}
       {...register}
@@ -47,7 +51,7 @@ interface TextInputIconProps {
 }
 
 function TextInputIcon(props: TextInputIconProps) {
-  return <Slot className="h-5 w-5 text-gray-600">{props.children}</Slot>
+  return <Slot className="h-5 w-5 text-zinc-600">{props.children}</Slot>
 }
 
 export const TextInput = {
