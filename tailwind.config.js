@@ -7,7 +7,7 @@ module.exports = {
         primary: '#3fb0ac',
       },
       fontFamily: {
-        sans: 'Poppins, sans-serif',
+        sans: 'Inter, sans-serif',
       },
     },
   },

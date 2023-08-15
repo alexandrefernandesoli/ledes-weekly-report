@@ -1,11 +1,11 @@
 import SupabaseProvider from './supabase-provider'
-import { Source_Sans_Pro } from 'next/font/google'
+import { Inter } from 'next/font/google'
 import '../styles/globals.css'
 import { ReactNode } from 'react'
 
-const source = Source_Sans_Pro({
+const source = Inter({
   subsets: ['latin'],
-  weight: ['200', '300', '400', '600', '700', '900'],
+  weight: ['100', '200', '300', '400', '500', '700', '800', '900'],
 })
 
 export const metadata = {
