@@ -7,6 +7,7 @@ import { Button } from '../../components/Button'
 import { TextInput } from '../../components/TextInput'
 import { HomeLeft } from '@/app/login/HomeLeft'
 import { useSupabase } from '../supabase-provider'
+import clsx from 'clsx'
 
 type Inputs = {
   name: string
@@ -16,10 +17,15 @@ type Inputs = {
 }
 
 const Register = () => {
-  const { register, handleSubmit } = useForm<Inputs>()
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<Inputs>()
   const router = useRouter()
 
   const [loading, setLoading] = useState(false)
+  const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
   const { supabase } = useSupabase()
 
@@ -33,8 +39,6 @@ const Register = () => {
       return
     }
 
-    console.log(data)
-
     const { error } = await supabase.auth.signUp({
       email: data.email,
       password: data.password,
@@ -45,12 +49,19 @@ const Register = () => {
       },
     })
 
-    if (error) {
-      console.log(error)
+    if (!error) {
+      router.push('/')
+    } else {
+      if (error.status === 400) {
+        setErrorMessage(
+          'Email já cadastrado. Tente novamente com um novo email.',
+        )
+      } else {
+        setErrorMessage('Algo deu errado. Tente novamente mais tarde.')
+      }
     }
 
     setLoading(false)
-    router.push('/')
   }
 
   return (
@@ -64,52 +75,124 @@ const Register = () => {
         >
           <h2 className="mb-2 text-2xl">Cadastre-se na nossa plataforma</h2>
 
+          {errorMessage ? (
+            <div className="rounded-lg bg-red-200 p-2 text-center font-semibold text-red-600">
+              {errorMessage}
+            </div>
+          ) : null}
+
           <div>
-            <label htmlFor="name">Nome completo</label>
-            <TextInput.Root className="bg-zinc-200">
+            <label className="font-semibold" htmlFor="name">
+              Nome completo
+            </label>
+            <TextInput.Root
+              className={clsx(
+                'bg-gray-200',
+                errors.name && 'border-2 ring-2 ring-red-400',
+              )}
+            >
               <TextInput.Input
                 type="text"
                 id="name"
+                name="name"
                 placeholder="Digite seu nome"
-                register={register('name', { required: true })}
+                register={register('name', {
+                  required: 'O campo nome é necessário.',
+                })}
               />
             </TextInput.Root>
+            {errors.name ? (
+              <p className="mt-1 text-sm text-red-600">{errors.name.message}</p>
+            ) : null}
           </div>
 
           <div>
-            <label htmlFor="email">Email</label>
-            <TextInput.Root className="bg-zinc-200">
+            <label className="font-semibold" htmlFor="email">
+              Email
+            </label>
+            <TextInput.Root
+              className={clsx(
+                'bg-gray-200',
+                errors.email && 'border-2 ring-2 ring-red-400',
+              )}
+            >
               <TextInput.Input
-                type="text"
+                type="email"
                 id="email"
+                name="email"
                 placeholder="Digite seu email"
-                register={register('email', { required: true })}
+                register={register('email', {
+                  required: 'O campo email é necessário.',
+                })}
               />
             </TextInput.Root>
+            {errors.email ? (
+              <p className="mt-1 text-sm text-red-600">
+                {errors.email.message}
+              </p>
+            ) : null}
           </div>
 
           <div>
-            <label htmlFor="password">Senha</label>
-            <TextInput.Root className="bg-zinc-200">
+            <label className="font-semibold" htmlFor="password">
+              Senha
+            </label>
+            <TextInput.Root
+              className={clsx(
+                'bg-gray-200',
+                errors.password && 'border-2 ring-2 ring-red-400',
+              )}
+            >
               <TextInput.Input
                 type="password"
                 id="password"
-                placeholder="******"
-                register={register('password', { required: true })}
+                name="password"
+                placeholder="********"
+                register={register('password', {
+                  required: 'O campo senha é necessário.',
+                  minLength: {
+                    value: 8,
+                    message: 'A senha deve ter no mínimo 8 caracteres.',
+                  },
+                })}
               />
             </TextInput.Root>
+            {errors.password ? (
+              <p className="mt-1 text-sm text-red-600">
+                {errors.password.message}
+              </p>
+            ) : null}
           </div>
 
           <div>
-            <label htmlFor="confirmPassword">Confirme sua senha</label>
-            <TextInput.Root className="bg-zinc-200">
+            <label className="font-semibold" htmlFor="confirmPassword">
+              Confirme sua senha
+            </label>
+            <TextInput.Root
+              className={clsx(
+                'bg-gray-200',
+                errors.confirmPassword && 'border-2 ring-2 ring-red-400',
+              )}
+            >
               <TextInput.Input
                 type="password"
                 id="confirmPassword"
-                placeholder="******"
-                register={register('confirmPassword', { required: true })}
+                name="confirmPassword"
+                placeholder="********"
+                register={register('confirmPassword', {
+                  required: 'O campo confirmar senha é necessário.',
+                  validate: (value, formValues) =>
+                    value !== formValues.password
+                      ? 'As duas senhas devem ser iguais.'
+                      : undefined,
+                })}
               />
             </TextInput.Root>
+            {errors.confirmPassword ? (
+              <p className="mt-1 text-sm text-red-600">
+                {errors.confirmPassword.message}
+              </p>
+            ) : null}
           </div>
 
           <Button

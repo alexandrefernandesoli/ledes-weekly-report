@@ -23,9 +23,9 @@ async function Login() {
       <div className="flex flex-col items-center justify-center bg-primary py-4 text-gray-200">
         <LoginForm />
         <div className="mt-3 flex flex-col items-center">
-          <Link href="/register" className="mb-2 underline">
+          {/* <Link href="/register" className="mb-2 underline">
             Esqueceu sua senha?
-          </Link>
+          </Link> */}
           <Link className="underline" href="/register">
             Não possui conta? Crie uma agora!
           </Link>
