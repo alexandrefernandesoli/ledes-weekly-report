@@ -2,7 +2,7 @@
 
 import { Project, Report, User } from '@prisma/client'
 import { jsPDF } from 'jspdf'
-import { ArrowDownToLineIcon } from 'lucide-react'
+import { DownloadIcon } from 'lucide-react'
 import moment from 'moment'
 import slugify from 'slugify'
 
@@ -20,21 +20,21 @@ export const MyDocument = ({
       floatPrecision: 16, // or "smart", default is 16
     })
 
-    const reportDate = moment(report.createdAt).format('DD/MM/YYYY')
+    const reportDate = moment(report.createdAt).format('DD/MM/YYYY HH:mm:ss')
 
     let currentLine = 25
     doc.setFontSize(28)
-    doc.text(`Relatório LWR`, 20, currentLine)
+    doc.text(`Relatório Ledes Weekly Report`, 20, currentLine)
 
     currentLine += 12
     doc.setFontSize(16)
     doc.text(`Projeto: ${report.project.name}`, 20, currentLine)
 
-    currentLine += 6
-    doc.text(`Data: ${reportDate}`, 20, currentLine)
-
-    currentLine += 6
+    currentLine += 8
     doc.text(`Autor: ${report.user.name}`, 20, currentLine)
+
+    currentLine += 8
+    doc.text(`Data de submissão: ${reportDate}`, 20, currentLine)
 
     const content = report.content as {
       tasksThisWeek: string[]
@@ -46,20 +46,22 @@ export const MyDocument = ({
     doc.text('Tarefas realizadas na semana:', 20, currentLine)
 
     doc.setFontSize(12).setFont(doc.getFont().fontName, 'normal', 'normal')
-    for (const linha of content.tasksThisWeek) {
+
+    content.tasksThisWeek.forEach((linha, index) => {
       currentLine += 6
-      doc.text(linha, 20, currentLine)
-    }
+      doc.text(`${index + 1}. ${linha}`, 20, currentLine)
+    })
 
     currentLine += 10
     doc.setFontSize(14).setFont(doc.getFont().fontName, 'normal', 'bold')
     doc.text('Tarefas planejadas para a próxima semana:', 20, currentLine)
 
     doc.setFontSize(12).setFont(doc.getFont().fontName, 'normal', 'normal')
-    for (const linha of content.tasksNextWeek) {
+
+    content.tasksNextWeek.forEach((linha, index) => {
       currentLine += 6
-      doc.text(linha, 20, currentLine)
-    }
+      doc.text(`${index + 1}. ${linha}`, 20, currentLine)
+    })
 
     const docName =
       slugify(
@@ -75,10 +77,10 @@ export const MyDocument = ({
   return (
     <>
       <button
-        className="flex w-fit gap-2 rounded-lg bg-zinc-700 px-2 py-1 text-zinc-50"
+        className="flex w-fit gap-2 rounded-lg bg-zinc-900 px-3 py-2 text-zinc-50 hover:bg-zinc-800"
         onClick={onClickButton}
       >
-        <ArrowDownToLineIcon />
+        <DownloadIcon />
         Baixar relatório
       </button>
     </>

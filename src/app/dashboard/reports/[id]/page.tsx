@@ -27,29 +27,43 @@ const Report = async ({ params }: { params: { id: string } }) => {
 
   return (
     <>
-      <div className="mb-6 flex justify-between">
-        <div>
+      <div className="flex justify-between">
+        <div className="text-xl font-semibold">
           <Link href={`/dashboard/project/${report.projectId}`}>
             Projeto: {report.project.name}
           </Link>
-          <p>Autor: {report.user.name}</p>
-          <p>Data: {moment(report.createdAt).format('DD/MM/YYYY')}</p>
+          <div>Autor: {report.user.name}</div>
+          <div>
+            Data de submissão:{' '}
+            {moment(report.createdAt).format('DD/MM/YYYY HH:mm:ss')}
+          </div>
         </div>
         <div>
           <MyDocument report={report} />
         </div>
       </div>
+
+      <div className="my-2 h-[1px] w-full border-b border-dashed"></div>
+
       <div>
-        <h2>Tarefas realizadas nessa semana:</h2>
-        <ul>
+        <h2 className="text-lg font-semibold">
+          Tarefas realizadas nessa semana:
+        </h2>
+        <ul className="mb-4">
           {content.tasksThisWeek.map((task, idx) => (
-            <li key={idx}>{task}</li>
+            <li key={idx}>
+              {idx + 1}. {task}
+            </li>
           ))}
         </ul>
-        <h2>Tarefas planejadas para a próxima semana:</h2>
+        <h2 className="text-lg font-semibold">
+          Tarefas planejadas para a próxima semana:
+        </h2>
         <ul>
           {content.tasksNextWeek.map((task, idx) => (
-            <li key={idx}>{task}</li>
+            <li key={idx}>
+              {idx + 1}. {task}
+            </li>
           ))}
         </ul>
       </div>
