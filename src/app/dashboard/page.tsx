@@ -1,6 +1,6 @@
 import { NewProjectModal } from '@/components/NewProjectModal'
 import prisma from '@/lib/prisma'
-import { UserRole } from '@prisma/client'
+import { Project, ProjectMember, Report, User, UserRole } from '@prisma/client'
 import { createServerComponentSupabaseClient } from '@supabase/auth-helpers-nextjs'
 import clsx from 'clsx'
 import { FolderGit2Icon } from 'lucide-react'
@@ -18,7 +18,7 @@ const Page = async () => {
 
   if (!session) redirect('/login')
 
-  const userData = await prisma.user.findUnique({
+  const userData = (await prisma.user.findUnique({
     where: {
       id: session.user.id,
     },
@@ -44,7 +44,10 @@ const Page = async () => {
         },
       },
     },
-  })
+  })) as User & {
+    projects: (ProjectMember & { project: Project & { reports: Report[] } })[]
+  }
+
   await prisma.$disconnect()
 
   if (!userData) {
@@ -53,8 +56,8 @@ const Page = async () => {
 
   return (
     <>
-      <div className="mb-4 flex items-center justify-between">
-        <h1 className="text-2xl md:text-3xl">Meus projetos</h1>
+      <div className="mb-4 flex items-center justify-between px-2">
+        <h1 className="text-xl md:text-3xl">Meus projetos</h1>
         {userData.role === UserRole.ADMIN ||
         userData.role === UserRole.SUPERVISOR ? (
           <NewProjectModal />
@@ -68,12 +71,12 @@ const Page = async () => {
           <div
             key={project.id}
             className={clsx(
-              'grid w-full grid-cols-[1fr,18px] items-center  px-3 py-2 md:px-4 md:py-3 md:text-2xl',
+              'grid w-full grid-cols-[1fr,18px] items-center  px-3 py-2 md:px-4 md:py-3 md:text-xl',
               arrayId % 2 === 1 && 'bg-zinc-200/50',
             )}
           >
             <div className="flex items-center gap-2">
-              <FolderGit2Icon className="h-4 w-4 md:h-8 md:w-8" />
+              <FolderGit2Icon className="h-4 w-4 md:h-6 md:w-6" />
               <Link
                 className="hover:text-zinc-700 hover:underline"
                 href={`/dashboard/project/${project.id}`}

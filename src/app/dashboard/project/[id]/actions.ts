@@ -12,6 +12,7 @@ export async function updateProjectAction(actionData: {
   projectId: string
   name: string
   description: string
+  type: string
 }) {
   const supabase = createRouteHandlerSupabaseClient<Database>({
     headers,
@@ -30,9 +31,10 @@ export async function updateProjectAction(actionData: {
     name: z.string(),
     description: z.string(),
     projectId: z.string(),
+    type: z.string(),
   })
 
-  const { name, description, projectId } = bodySchema.parse(actionData)
+  const { name, description, type, projectId } = bodySchema.parse(actionData)
 
   const myProject = await prisma.projectMember.findFirstOrThrow({
     where: {
@@ -49,6 +51,7 @@ export async function updateProjectAction(actionData: {
     data: {
       name,
       description,
+      type,
     },
   })
 

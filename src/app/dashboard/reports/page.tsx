@@ -25,14 +25,12 @@ export default async function Reports() {
 
   return (
     <div>
-      <h1 className="mb-4 text-3xl">Meu histórico de relatórios</h1>
+      <h1 className="mb-2 px-2 text-xl md:mb-4 md:text-3xl">
+        Meu histórico de relatórios
+      </h1>
 
-      <div>
-        <div
-          className={clsx(
-            'grid grid-cols-[1fr,1fr,180px] bg-zinc-200/50 px-4 py-3 font-semibold',
-          )}
-        >
+      <div className="text-sm md:text-base">
+        <div className="grid grid-cols-[1fr,1fr,20px] bg-zinc-200/50 px-3 py-2 font-semibold md:grid-cols-[1fr,1fr,180px] md:px-4 md:py-3">
           <div className="flex w-fit items-center justify-center gap-1">
             <FolderGitIcon />
             Nome do projeto
@@ -47,7 +45,7 @@ export default async function Reports() {
           <div
             key={report.id}
             className={clsx(
-              'grid grid-cols-[1fr,1fr,180px] px-4 py-3',
+              'grid grid-cols-[1fr,1fr,20px] px-4 py-3 md:grid-cols-[1fr,1fr,180px]',
               index % 2 === 1 && 'bg-zinc-200/50',
             )}
           >
@@ -57,7 +55,7 @@ export default async function Reports() {
             >
               {report.project.name}
             </Link>
-            <div className="flex flex-col leading-none">
+            <div className="flex flex-col justify-center leading-none">
               <span className="font-semibold">
                 {moment(report.createdAt).format('DD/MM/YYYY')}
               </span>
@@ -66,11 +64,11 @@ export default async function Reports() {
               </span>
             </div>
             <Link
-              className="flex w-fit items-center justify-center gap-1 leading-none"
+              className="flex w-fit items-center justify-center gap-1 rounded-lg px-1 leading-none transition-all hover:bg-black/5"
               href={`/dashboard/reports/${report.id}`}
             >
               <EyeIcon />
-              Visualizar relatório
+              <div className="hidden md:inline-block">Visualizar relatório</div>
             </Link>
           </div>
         ))}

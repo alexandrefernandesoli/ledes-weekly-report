@@ -1,4 +1,5 @@
 import prisma from '@/lib/prisma'
+import 'moment/locale/pt-br'
 import moment from 'moment'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
@@ -25,22 +26,32 @@ const Report = async ({ params }: { params: { id: string } }) => {
     tasksNextWeek: string[]
   }
 
+  moment.locale('pt-br')
+
   return (
     <>
-      <div className="flex justify-between">
-        <div className="text-xl font-semibold">
-          <Link href={`/dashboard/project/${report.projectId}`}>
-            Projeto: {report.project.name}
-          </Link>
-          <div>Autor: {report.user.name}</div>
-          <div>
-            Data de submissão:{' '}
-            {moment(report.createdAt).format('DD/MM/YYYY HH:mm:ss')}
-          </div>
+      <div className="mb-2 text-base md:text-xl">
+        <Link href={`/dashboard/project/${report.projectId}`}>
+          <strong>Projeto: </strong>
+          {report.project.name}
+        </Link>
+        <div>
+          <strong>Autor: </strong>
+          {report.user.name}
         </div>
         <div>
-          <MyDocument report={report} />
+          <strong>Data de submissão: </strong>
+          {moment(report.createdAt).format('LLLL')}
         </div>
+      </div>
+      <div className="flex flex-wrap gap-1">
+        <Link
+          href={'/'}
+          className="rounded-lg bg-gray-900 px-3 py-2 text-white"
+        >
+          Ir ao projeto
+        </Link>
+        <MyDocument report={report} />
       </div>
 
       <div className="my-2 h-[1px] w-full border-b border-dashed"></div>

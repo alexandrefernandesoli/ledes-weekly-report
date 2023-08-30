@@ -36,23 +36,46 @@ export async function POST(request: NextRequest) {
       },
     })
 
-    const user = await prisma.user.findUniqueOrThrow({
+    if (!myProject) {
+      return NextResponse.json({ message: 'Não autorizado.' }, { status: 404 })
+    }
+
+    const user = await prisma.user.findUnique({
       where: {
         email,
       },
     })
 
-    if (user) {
-      await prisma.projectMember.create({
-        data: {
-          userId: user.id,
-          projectId: myProject.projectId,
-        },
-      })
+    if (!user) {
+      return NextResponse.json(
+        { message: 'Usuário não encontrado.' },
+        { status: 400 },
+      )
     }
 
+    const isAlreadyMember = await prisma.projectMember.findFirst({
+      where: {
+        userId: user.id,
+        projectId,
+      },
+    })
+
+    if (isAlreadyMember) {
+      return NextResponse.json(
+        { message: 'Membro já faz parte do projeto.' },
+        { status: 400 },
+      )
+    }
+
+    await prisma.projectMember.create({
+      data: {
+        userId: user.id,
+        projectId: myProject.projectId,
+      },
+    })
+
     return NextResponse.json(user)
-  } catch (error) {
-    return NextResponse.json(error, { status: 500 })
+  } catch (error: any) {
+    return NextResponse.json({ message: error.message }, { status: 500 })
   }
 }

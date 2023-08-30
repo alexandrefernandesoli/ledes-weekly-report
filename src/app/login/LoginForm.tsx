@@ -68,7 +68,7 @@ export default function LoginForm() {
         <TextInput.Root invalid={!!errors.email}>
           <MailIcon className="text-gray-600" />
           <TextInput.Input
-            type="text"
+            type="email"
             id="email"
             placeholder="johndoe@example.com"
             register={register('email', {
