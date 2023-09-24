@@ -3,17 +3,18 @@
 import { Button } from '@/components/Button'
 import { TextInput } from '@/components/TextInput'
 import { PlusCircleIcon } from '@heroicons/react/24/outline'
-import axios from 'axios'
 import { SendIcon } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { ChangeEvent, useState } from 'react'
 import { FaTimes } from 'react-icons/fa'
+import { addReportAction } from '@/app/dashboard/project/[id]/actions'
 
 const NewReport = ({ params }: { params: { id: string } }) => {
   const router = useRouter()
 
   const [tasksThisWeek, setTasksThisWeek] = useState([''])
   const [tasksNextWeek, setTasksNextWeek] = useState([''])
+  const [loading, setLoading] = useState(false)
 
   const removeTaskThisWeek = (i: number) => {
     if (tasksThisWeek.length <= 1) return
@@ -60,15 +61,23 @@ const NewReport = ({ params }: { params: { id: string } }) => {
   const onSubmitForm = async (event: any) => {
     event.preventDefault()
 
-    await axios.post('/api/reports', {
+    if (loading) return
+
+    setLoading(true)
+
+    const { error } = await addReportAction({
       projectId: params.id,
-      content: {
-        tasksThisWeek,
-        tasksNextWeek,
-      },
+      content: { tasksThisWeek, tasksNextWeek },
     })
 
-    router.back()
+    if (error) {
+      console.log(error)
+      setLoading(false)
+      return
+    }
+
+    setLoading(false)
+    router.push('/dashboard/project/' + params.id)
   }
 
   return (

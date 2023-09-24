@@ -1,27 +1,27 @@
-import prisma from '@/lib/prisma'
-import { createServerComponentSupabaseClient } from '@supabase/auth-helpers-nextjs'
+import { createServerComponentClient } from '@supabase/auth-helpers-nextjs'
 import clsx from 'clsx'
 import { CalendarIcon, EyeIcon, FolderGitIcon } from 'lucide-react'
 import moment from 'moment'
-import { headers, cookies } from 'next/headers'
+import { cookies } from 'next/headers'
 import Link from 'next/link'
+import { Database } from '@/lib/database.types'
 
+export const dynamic = 'force-dynamic'
 export default async function Reports() {
-  const supabase = createServerComponentSupabaseClient({ headers, cookies })
+  const supabase = createServerComponentClient<Database>({ cookies })
 
   const {
     data: { user },
   } = await supabase.auth.getUser()
 
-  const reports = await prisma.report.findMany({
-    where: {
-      userId: user?.id,
-    },
-    include: {
-      project: true,
-    },
-  })
-  await prisma.$disconnect()
+  const { data: reports, error } = await supabase
+    .from('report')
+    .select('*, project(*)')
+    .eq('user_id', user!.id)
+
+  if (error) {
+    return null
+  }
 
   return (
     <div>
@@ -51,16 +51,16 @@ export default async function Reports() {
           >
             <Link
               className="flex w-fit items-center justify-center hover:underline"
-              href={`/dashboard/project/${report.project.id}`}
+              href={`/dashboard/project/${report.project!.id}`}
             >
-              {report.project.name}
+              {report.project!.name}
             </Link>
             <div className="flex flex-col justify-center leading-none">
               <span className="font-semibold">
-                {moment(report.createdAt).format('DD/MM/YYYY')}
+                {moment(report.created_at).format('DD/MM/YYYY')}
               </span>
               <span className="text-sm">
-                {moment(report.createdAt).format('hh:mm:ss')}
+                {moment(report.created_at).format('hh:mm:ss')}
               </span>
             </div>
             <Link

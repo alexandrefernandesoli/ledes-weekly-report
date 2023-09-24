@@ -3,10 +3,10 @@
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { SubmitHandler, useForm } from 'react-hook-form'
-import { Button } from '../../components/Button'
-import { TextInput } from '../../components/TextInput'
+import { Button } from '@/components/Button'
+import { TextInput } from '@/components/TextInput'
 import { HomeLeft } from '@/app/login/HomeLeft'
-import { useSupabase } from '../supabase-provider'
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 
 type Inputs = {
   name: string
@@ -26,7 +26,7 @@ const Register = () => {
   const [loading, setLoading] = useState(false)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
-  const { supabase } = useSupabase()
+  const supabase = createClientComponentClient()
 
   const handleSignupSubmit: SubmitHandler<Inputs> = async (data) => {
     setLoading(true)
@@ -45,6 +45,7 @@ const Register = () => {
         data: {
           name: data.name,
         },
+        emailRedirectTo: `${location.origin}/api/auth/callback`,
       },
     })
 

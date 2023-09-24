@@ -1,38 +1,22 @@
 'use client'
 
 import { AcademicCapIcon } from '@heroicons/react/24/solid'
-// import { User, UserRole } from '@prisma/client'
 import * as Avatar from '@radix-ui/react-avatar'
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
-// import axios from 'axios'
 import {
   FileBoxIcon,
   LogOutIcon,
-  // ShieldCheckIcon,
   User2Icon,
   UserCog,
   UserIcon,
 } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-// import { useEffect, useState } from 'react'
-import { useSupabase } from '../app/supabase-provider'
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 
 export const Header = () => {
-  const { supabase } = useSupabase()
+  const supabase = createClientComponentClient()
   const router = useRouter()
-
-  // const [user, setUser] = useState<User | null>(null)
-
-  // async function getUser() {
-  //   const response = await axios.get('/api/user')
-
-  //   setUser(response.data)
-  // }
-
-  // useEffect(() => {
-  //   getUser()
-  // }, [])
 
   const signOutHandler = async () => {
     const { error } = await supabase.auth.signOut()

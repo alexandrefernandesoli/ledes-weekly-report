@@ -1,11 +1,12 @@
-import { createServerComponentSupabaseClient } from '@supabase/auth-helpers-nextjs'
+import { createServerComponentClient } from '@supabase/auth-helpers-nextjs'
 import { ReactNode } from 'react'
-import { headers, cookies } from 'next/headers'
+import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { Header } from '@/components/Header'
 
+export const dynamic = 'force-dynamic'
 export default async function Layout({ children }: { children: ReactNode }) {
-  const supabase = createServerComponentSupabaseClient({ headers, cookies })
+  const supabase = createServerComponentClient({ cookies })
 
   const {
     data: { session },

@@ -3,13 +3,13 @@
 import { updateProjectAction } from '@/app/dashboard/project/[id]/actions'
 import { Button } from '@/components/Button'
 import { TextInput } from '@/components/TextInput'
-import { Project, ProjectMember, User } from '@prisma/client'
 import * as Dialog from '@radix-ui/react-dialog'
 import { Cog, XIcon } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { SubmitHandler, useForm } from 'react-hook-form'
 import NotificationToast from './NotificationToast'
+import { ProjectType } from '@/app/dashboard/project/[id]/page'
 
 type Inputs = {
   projectName: string
@@ -17,20 +17,16 @@ type Inputs = {
   projectType: string
 }
 
-export const ProjectPrefModal = ({
-  project,
-}: {
-  project: Project & { members?: (ProjectMember & { member: User })[] }
-}) => {
+export const ProjectPrefModal = ({ project }: { project: ProjectType }) => {
   const [open, setOpen] = useState(false)
   const [isNotificationOpen, setIsNotificationOpen] = useState(false)
 
   const [isLoading, setIsLoading] = useState(false)
   const { register, handleSubmit } = useForm<Inputs>({
     defaultValues: {
-      projectName: project.name,
-      projectDescription: project.description,
-      projectType: project.type,
+      projectName: project.name || '',
+      projectDescription: project.description || '',
+      projectType: project.type || '',
     },
   })
 

@@ -1,24 +1,17 @@
 import { ProjectPrefModal } from '@/app/dashboard/project/[id]/ProjectPrefModal'
 import { Database } from '@/lib/database.types'
-import prisma from '@/lib/prisma'
 import { CalendarIcon, UserIcon } from '@heroicons/react/24/outline'
-import {
-  ProjectMember,
-  ProjectRole,
-  Project as ProjectType,
-  Report,
-  User,
-} from '@prisma/client'
-import { createServerComponentSupabaseClient } from '@supabase/auth-helpers-nextjs'
+import { createServerComponentClient } from '@supabase/auth-helpers-nextjs'
 import { Eye, Plus } from 'lucide-react'
 import moment from 'moment'
-import { cookies, headers } from 'next/headers'
+import { cookies } from 'next/headers'
 import Link from 'next/link'
 import { MembersModal } from './MembersModal'
+import { SupabaseClient } from '@supabase/supabase-js'
 
+export const dynamic = 'force-dynamic'
 const Project = async ({ params }: { params: { id: string } }) => {
-  const supabase = createServerComponentSupabaseClient<Database>({
-    headers,
+  const supabase = createServerComponentClient<Database>({
     cookies,
   })
 
@@ -26,19 +19,19 @@ const Project = async ({ params }: { params: { id: string } }) => {
     data: { session },
   } = await supabase.auth.getSession()
 
-  const myProject = await prisma.projectMember.findFirst({
-    where: {
-      projectId: params.id,
-      userId: session?.user.id,
-    },
-  })
+  const { data: myProject } = await supabase
+    .from('project_member')
+    .select('*')
+    .eq('project_id', params.id)
+    .eq('user_id', session!.user.id)
+    .limit(1)
+    .single()
 
   if (!myProject) {
     return null
   }
 
-  const project = await getProjectDetails(myProject, session)
-  await prisma.$disconnect()
+  const project = await getProjectDetails(myProject, supabase)
 
   if (!project) {
     return null
@@ -59,10 +52,10 @@ const Project = async ({ params }: { params: { id: string } }) => {
           Novo relatório
         </Link>
         <MembersModal
-          isSupervisor={myProject.role === ProjectRole.SUPERVISOR}
+          isSupervisor={myProject.role === 'SUPERVISOR'}
           project={project}
         />
-        {myProject.role === ProjectRole.SUPERVISOR && (
+        {myProject.role === 'SUPERVISOR' && (
           <ProjectPrefModal project={project} />
         )}
       </div>
@@ -71,67 +64,57 @@ const Project = async ({ params }: { params: { id: string } }) => {
 
       <h2 className="mb-2 text-xl md:text-2xl">Relatórios</h2>
 
-      <ReportsListSupervisor reports={project.reports!} />
+      <ReportsList reports={project.report} />
     </div>
   )
 }
 
-const getProjectDetails = async (myProject: ProjectMember, session: any) => {
-  let project:
-    | (ProjectType & {
-        members?: (ProjectMember & { member: User })[]
-        reports?: (Report & { user: User })[]
-      })
-    | null = null
-
-  const includeOptions: any = {
-    members: {
-      include: {
-        member: true,
-      },
-    },
-    reports: {
-      include: {
-        user: true,
-      },
-      orderBy: {
-        createdAt: 'desc',
-      },
-    },
-  }
-
-  if (myProject.role === ProjectRole.SUPERVISOR) {
-    project = await prisma.project.findUnique({
-      where: {
-        id: myProject.projectId,
-      },
-      include: includeOptions,
-    })
-  } else {
-    project = await prisma.project.findUnique({
-      where: {
-        id: myProject.projectId,
-      },
-      include: {
-        ...includeOptions,
-        reports: {
-          where: {
-            userId: session?.user.id,
-          },
-          ...includeOptions.reports,
-        },
-      },
-    })
-  }
-
-  return project
+export type ProjectType = Database['public']['Tables']['project']['Row'] & {
+  profile: Database['public']['Tables']['profile']['Row'][]
+  report: (Database['public']['Tables']['report']['Row'] & {
+    profile: Database['public']['Tables']['profile']['Row'] | null
+  })[]
 }
 
-const ReportsListSupervisor = ({
-  reports,
-}: {
-  reports: (Report & { user: User })[]
-}) => {
+const getProjectDetails = async (
+  myProject: Database['public']['Tables']['project_member']['Row'],
+  supabase: SupabaseClient<Database>,
+): Promise<ProjectType | null> => {
+  if (myProject.role === 'SUPERVISOR') {
+    const { data } = await supabase
+      .from('project')
+      .select('*, profile(*), report(*, profile(*))')
+      .eq('id', myProject.project_id)
+      .limit(1)
+      .single()
+
+    data!.report.sort(
+      (a, b) => Date.parse(b.created_at) - Date.parse(a.created_at),
+    )
+
+    return data
+  }
+
+  const { data } = await supabase
+    .from('project')
+    .select('*, profile(*), report(*, profile(*))')
+    .eq('id', myProject.project_id)
+    .eq('report.user_id', myProject.user_id)
+    .limit(1)
+    .single()
+
+  data!.report.sort(
+    (a, b) => Date.parse(b.created_at) - Date.parse(a.created_at),
+  )
+
+  return data
+}
+
+type ReportType = (Database['public']['Tables']['report']['Row'] & {
+  profile: Database['public']['Tables']['profile']['Row'] | null
+})[]
+
+const ReportsList = ({ reports }: { reports: ReportType }) => {
   return (
     <div className="flex flex-col gap-1">
       {reports.length > 0 ? (
@@ -145,23 +128,25 @@ const ReportsListSupervisor = ({
             </div>
             <div className="px-4 py-3"></div>
           </div>
-          {reports.map((report, idx) => (
+          {reports.map((report) => (
             <div
               key={report.id}
               className="grid grid-cols-[1fr,1fr,20px] bg-gray-200  md:grid-cols-3"
             >
               <div className="flex flex-col justify-center truncate whitespace-nowrap px-3 py-2 text-sm leading-tight  text-gray-900 md:px-4 md:py-3">
-                <div className="truncate font-semibold">{report.user.name}</div>
+                <div className="truncate font-semibold">
+                  {report.profile!.name}
+                </div>
                 <div className="truncate text-xs text-gray-700 md:text-sm">
-                  {report.user.email}
+                  {report.profile!.email}
                 </div>
               </div>
               <div className="flex flex-col justify-center px-3 py-2 text-sm leading-tight text-gray-900 md:px-4 md:py-3">
                 <span className="font-semibold">
-                  {moment(report.createdAt).format('DD/MM/YYYY')}
+                  {moment(report.created_at).format('DD/MM/YYYY')}
                 </span>
                 <span className="text-gray-700">
-                  {moment(report.createdAt).format('HH:mm:ss')}
+                  {moment(report.created_at).format('HH:mm:ss')}
                 </span>
               </div>
               <div className="flex justify-end gap-1 px-3 py-2 text-sm  font-light text-gray-900">

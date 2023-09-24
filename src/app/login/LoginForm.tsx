@@ -6,7 +6,7 @@ import { LockIcon, MailIcon } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { SubmitHandler, useForm } from 'react-hook-form'
-import { useSupabase } from '../supabase-provider'
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 
 type Inputs = {
   email: string
@@ -22,7 +22,7 @@ export default function LoginForm() {
     formState: { errors },
   } = useForm<Inputs>()
   const router = useRouter()
-  const { supabase } = useSupabase()
+  const supabase = createClientComponentClient()
 
   const handleLoginSubmit: SubmitHandler<Inputs> = async (data) => {
     if (isLoading) return

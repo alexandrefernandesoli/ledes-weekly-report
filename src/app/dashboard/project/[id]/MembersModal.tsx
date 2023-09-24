@@ -1,19 +1,21 @@
 'use client'
 
+import { ProjectType } from '@/app/dashboard/project/[id]/page'
 import { Button } from '@/components/Button'
 import { TextInput } from '@/components/TextInput'
-import { Project, ProjectMember, User } from '@prisma/client'
 import * as Dialog from '@radix-ui/react-dialog'
-import axios, { AxiosError } from 'axios'
-import { UsersIcon, XIcon } from 'lucide-react'
+import { ListXIcon, UsersIcon, XIcon } from 'lucide-react'
 import { useState } from 'react'
 import NotificationToast from './NotificationToast'
+import { addMemberAction } from './actions'
+import moment from 'moment'
+import * as Tooltip from '@radix-ui/react-tooltip'
 
 export const MembersModal = ({
   project,
   isSupervisor,
 }: {
-  project: Project & { members?: (ProjectMember & { member: User })[] }
+  project: ProjectType
   isSupervisor: boolean
 }) => {
   const [open, setOpen] = useState(false)
@@ -24,37 +26,34 @@ export const MembersModal = ({
     'success',
   )
   const [memberEmail, setMemberEmail] = useState('')
-  const [members, setMembers] = useState(
-    project.members?.map((member) => member.member),
-  )
+  const [members, setMembers] = useState(project.profile)
 
   const addNewMember = async () => {
-    try {
-      const response = await axios.post('/api/projects/invite', {
-        projectId: project.id,
-        email: memberEmail,
-      })
+    const { member, error } = await addMemberAction({
+      projectId: project.id,
+      email: memberEmail,
+    })
 
-      setNotificationTitle('Sucesso')
-      setNotificationMessage('Membro adicionado com sucesso!')
-      setNotificationType('success')
+    if (error) {
+      setNotificationTitle('Erro')
+      console.log(error)
+      setNotificationMessage(
+        error || 'Ocorreu um erro, tente novamente mais tarde.',
+      )
+      setNotificationType('error')
 
       setIsNotificationOpen(true)
 
-      setMembers((members) => [...members!, response.data])
-    } catch (err) {
-      if (err instanceof AxiosError) {
-        setNotificationTitle('Erro')
-        setNotificationMessage(
-          err.response?.data.message ||
-            'Ocorreu um erro, tente novamente mais tarde.',
-        )
-        setNotificationType('error')
-
-        setIsNotificationOpen(true)
-        console.log(err)
-      }
+      return
     }
+
+    setNotificationTitle('Sucesso')
+    setNotificationMessage('Membro adicionado com sucesso!')
+    setNotificationType('success')
+
+    setIsNotificationOpen(true)
+
+    setMembers((members) => [...members!, member!])
   }
 
   return (
@@ -67,7 +66,7 @@ export const MembersModal = ({
       </Dialog.Trigger>
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 z-50 bg-gray-900 bg-opacity-10 data-[state=open]:animate-overlayShow" />
-        <Dialog.Content className="fixed left-1/2 top-1/2 z-50 flex w-[95vw] -translate-x-1/2 -translate-y-1/2 flex-col gap-2 rounded-lg bg-gray-50 p-3 data-[state=open]:animate-contentShow md:w-[660px] md:p-6">
+        <Dialog.Content className="fixed left-1/2 top-1/2 z-50 flex w-[95vw] -translate-x-1/2 -translate-y-1/2 flex-col gap-2 rounded-lg bg-gray-50 p-3 data-[state=open]:animate-contentShow md:w-[750px] md:p-6">
           <div className="flex items-center justify-between">
             <Dialog.Title className="text-2xl text-gray-900">
               Membros
@@ -103,16 +102,45 @@ export const MembersModal = ({
           ) : null}
 
           <div className="w-full">
-            <div className="text-lg text-gray-900">Membros do projeto</div>
-            {members?.map((member) => (
-              <div
-                key={member.id}
-                className="grid grid-cols-1 text-sm md:grid-cols-2"
-              >
-                <div className="truncate">{member.name}</div>
-                <div className="hidden truncate md:block">{member.email}</div>
-              </div>
-            ))}
+            {/* A members table that display id, name and email */}
+            <table className="w-full border-separate border-spacing-2 text-sm">
+              <thead>
+                <tr>
+                  <th className="text-left">Nome</th>
+                  <th className="hidden text-left md:table-cell">Email</th>
+                  <th className="hidden text-left md:table-cell">
+                    Membro Desde
+                  </th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                {members?.map((member) => (
+                  <tr key={member.id} className="bg-gray-100">
+                    <td className="p-2">{member.name}</td>
+                    <td className="hidden p-2 md:table-cell">{member.email}</td>
+                    <td className="hidden p-2 md:table-cell">
+                      {moment(member.created_at).format('DD/MM/YYYY')}
+                    </td>
+                    <td>
+                      <Tooltip.Provider>
+                        <Tooltip.Root>
+                          <Tooltip.Trigger className="flex h-full w-full items-center justify-center">
+                            <ListXIcon className="text-red-800" />
+                          </Tooltip.Trigger>
+                          <Tooltip.Content className="flex flex-col rounded-lg bg-gray-50 p-2 shadow-md">
+                            <span className="text-xs text-red-800">
+                              Remover
+                            </span>
+                            <Tooltip.Arrow className="fill-white" />
+                          </Tooltip.Content>
+                        </Tooltip.Root>
+                      </Tooltip.Provider>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         </Dialog.Content>
         <NotificationToast

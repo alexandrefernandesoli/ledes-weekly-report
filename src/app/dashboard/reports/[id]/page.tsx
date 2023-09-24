@@ -1,23 +1,25 @@
-import prisma from '@/lib/prisma'
 import 'moment/locale/pt-br'
 import moment from 'moment'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
-import { MyDocument } from './pdfView'
+import { createServerComponentClient } from '@supabase/auth-helpers-nextjs'
+import { Database } from '@/lib/database.types'
+import { cookies } from 'next/headers'
+import { DownloadReportButton } from '@/app/dashboard/reports/[id]/DownloadReportButton'
+import { DownloadIcon } from 'lucide-react'
 
+export const dynamic = 'force-dynamic'
 const Report = async ({ params }: { params: { id: string } }) => {
-  const report = await prisma.report.findUnique({
-    where: {
-      id: params.id,
-    },
-    include: {
-      project: true,
-      user: true,
-    },
-  })
-  await prisma.$disconnect()
+  const supabase = createServerComponentClient<Database>({ cookies })
 
-  if (!report) {
+  const { data: report, error } = await supabase
+    .from('report')
+    .select('*, project(*), profile(*)')
+    .eq('id', params.id)
+    .limit(1)
+    .single()
+
+  if (error) {
     redirect('/')
   }
 
@@ -30,28 +32,30 @@ const Report = async ({ params }: { params: { id: string } }) => {
 
   return (
     <>
-      <div className="mb-2 text-base md:text-xl">
-        <Link href={`/dashboard/project/${report.projectId}`}>
-          <strong>Projeto: </strong>
-          {report.project.name}
-        </Link>
+      <div className="mb-2 flex justify-between text-base md:text-xl">
         <div>
-          <strong>Autor: </strong>
-          {report.user.name}
+          <Link href={`/dashboard/project/${report.project_id}`}>
+            <strong>Projeto: </strong>
+            {report.project!.name}
+          </Link>
+          <div>
+            <strong>Autor: </strong>
+            {report.profile!.name}
+          </div>
+          <div>
+            <strong>Data de submissão: </strong>
+            {moment(report.created_at).format('LLLL')}
+          </div>
         </div>
         <div>
-          <strong>Data de submissão: </strong>
-          {moment(report.createdAt).format('LLLL')}
+          <DownloadReportButton
+            className="flex h-fit w-fit items-center justify-center gap-1 rounded-lg bg-gray-900 px-3 py-2 text-sm text-gray-50 hover:bg-gray-800 md:text-base"
+            report={report}
+          >
+            <DownloadIcon />
+            <span className="hidden md:block">Baixar Relatório</span>
+          </DownloadReportButton>
         </div>
-      </div>
-      <div className="flex flex-wrap gap-1">
-        <Link
-          href={'/'}
-          className="rounded-lg bg-gray-900 px-3 py-2 text-white"
-        >
-          Ir ao projeto
-        </Link>
-        <MyDocument report={report} />
       </div>
 
       <div className="my-2 h-[1px] w-full border-b border-dashed"></div>

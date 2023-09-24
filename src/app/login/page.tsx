@@ -2,11 +2,12 @@ import Link from 'next/link'
 import { HomeLeft } from './HomeLeft'
 import { redirect } from 'next/navigation'
 import LoginForm from './LoginForm'
-import { createServerComponentSupabaseClient } from '@supabase/auth-helpers-nextjs'
-import { headers, cookies } from 'next/headers'
+import { cookies } from 'next/headers'
+import { createServerComponentClient } from '@supabase/auth-helpers-nextjs'
 
+export const dynamic = 'force-dynamic'
 async function Login() {
-  const supabase = createServerComponentSupabaseClient({ headers, cookies })
+  const supabase = createServerComponentClient({ cookies })
 
   const {
     data: { session },

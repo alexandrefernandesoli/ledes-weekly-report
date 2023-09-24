@@ -1,4 +1,3 @@
-import SupabaseProvider from './supabase-provider'
 import { Inter } from 'next/font/google'
 import '../styles/globals.css'
 import { ReactNode } from 'react'
@@ -31,7 +30,7 @@ export const metadata = {
     },
   ],
 }
-
+export const dynamic = 'force-dynamic'
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="pt">
@@ -41,10 +40,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           source.className
         }
       >
-        <SupabaseProvider session={null}>
-          {/* <SupabaseListener serverAccessToken={session?.access_token} /> */}
-          {children}
-        </SupabaseProvider>
+        {children}
       </body>
     </html>
   )

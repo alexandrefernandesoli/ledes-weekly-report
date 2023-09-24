@@ -1,16 +1,16 @@
 import { NewProjectModal } from '@/components/NewProjectModal'
-import prisma from '@/lib/prisma'
-import { Project, ProjectMember, Report, User, UserRole } from '@prisma/client'
-import { createServerComponentSupabaseClient } from '@supabase/auth-helpers-nextjs'
+import { createServerComponentClient } from '@supabase/auth-helpers-nextjs'
 import clsx from 'clsx'
 import { FolderGit2Icon } from 'lucide-react'
-import { cookies, headers } from 'next/headers'
+import { cookies } from 'next/headers'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { LastReportTooltip } from './LastReportTooltip'
+import { Database } from '@/lib/database.types'
 
+export const dynamic = 'force-dynamic'
 const Page = async () => {
-  const supabase = createServerComponentSupabaseClient({ headers, cookies })
+  const supabase = createServerComponentClient<Database>({ cookies })
 
   const {
     data: { session },
@@ -18,37 +18,12 @@ const Page = async () => {
 
   if (!session) redirect('/login')
 
-  const userData = (await prisma.user.findUnique({
-    where: {
-      id: session.user.id,
-    },
-    include: {
-      projects: {
-        include: {
-          project: {
-            include: {
-              reports: {
-                where: {
-                  userId: session.user.id,
-                },
-                orderBy: {
-                  createdAt: 'desc',
-                },
-                take: 1,
-                select: {
-                  createdAt: true,
-                },
-              },
-            },
-          },
-        },
-      },
-    },
-  })) as User & {
-    projects: (ProjectMember & { project: Project & { reports: Report[] } })[]
-  }
-
-  await prisma.$disconnect()
+  const { data: userData } = await supabase
+    .from('profile')
+    .select('*, project(report(created_at), *)')
+    .eq('id', session.user.id)
+    .limit(1)
+    .single()
 
   if (!userData) {
     throw new Error('User data not found')
@@ -58,8 +33,7 @@ const Page = async () => {
     <>
       <div className="mb-4 flex items-center justify-between px-2">
         <h1 className="text-xl md:text-3xl">Meus projetos</h1>
-        {userData.role === UserRole.ADMIN ||
-        userData.role === UserRole.SUPERVISOR ? (
+        {userData.role === 'ADMIN' || userData.role === 'SUPERVISOR' ? (
           <NewProjectModal />
         ) : (
           ''
@@ -67,7 +41,7 @@ const Page = async () => {
       </div>
 
       <div className="flex flex-col">
-        {userData?.projects.map(({ project }, arrayId) => (
+        {userData?.project.map((project, arrayId) => (
           <div
             key={project.id}
             className={clsx(
@@ -84,7 +58,7 @@ const Page = async () => {
                 {project.name}
               </Link>
             </div>
-            <LastReportTooltip reports={project.reports} />
+            <LastReportTooltip reports={project.report} />
           </div>
         ))}
       </div>

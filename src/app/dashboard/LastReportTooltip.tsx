@@ -7,10 +7,11 @@ import clsx from 'clsx'
 export const LastReportTooltip = ({
   reports,
 }: {
-  reports: { createdAt: Date }[]
+  reports: { created_at: string }[]
 }) => {
+  reports.sort((a, b) => Date.parse(b.created_at) - Date.parse(a.created_at))
   const lastReportDateToNow = reports[0]
-    ? moment().diff(moment(reports[0].createdAt), 'days')
+    ? moment().diff(moment(reports[0].created_at), 'days')
     : -1
 
   return (
