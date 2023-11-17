@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { HiOutlineX } from 'react-icons/hi'
 import { TextInput } from './TextInput'
+import { createProjectAction } from '@/app/dashboard/actions'
 
 export const NewProjectModal = () => {
   const [open, setOpen] = useState(false)
@@ -19,19 +20,22 @@ export const NewProjectModal = () => {
   const newProject = async () => {
     if (projectName.trim() === '' || projectDescription.trim() === '') return
 
-    try {
-      const response = await axios.post('/api/projects', {
-        name: projectName,
-        description: projectDescription,
-        type: projectType,
-      })
+    console.log('chamado')
 
-      setOpen(false)
+    const { project, error } = await createProjectAction({
+      name: projectName,
+      description: projectDescription,
+      type: projectType,
+    })
 
-      push(`/dashboard/project/${response.data.id}`)
-    } catch (error) {
+    if (error) {
       console.log(error)
+      return
     }
+
+    setOpen(false)
+
+    push(`/dashboard/project/${project?.id}`)
   }
 
   return (
@@ -43,8 +47,8 @@ export const NewProjectModal = () => {
         </button>
       </Dialog.Trigger>
       <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 z-50 bg-gray-900 bg-opacity-10 " />
-        <Dialog.Content className="fixed left-1/2 top-1/2 z-50 max-h-[85vh] w-[90vw] max-w-[450px] -translate-x-1/2 -translate-y-1/2 rounded-lg bg-white p-4">
+        <Dialog.Overlay className="fixed inset-0 z-50 bg-gray-900 bg-opacity-10 data-[state=open]:animate-overlayShow" />
+        <Dialog.Content className="fixed left-1/2 top-1/2 z-50 max-h-[85vh] w-[90vw] max-w-[450px] -translate-x-1/2 -translate-y-1/2 rounded-lg bg-white p-4 data-[state=open]:animate-contentShow">
           <Dialog.Title className="text-xl text-gray-900">
             Criar novo projeto
           </Dialog.Title>

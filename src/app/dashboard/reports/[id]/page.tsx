@@ -1,16 +1,27 @@
-import 'moment/locale/pt-br'
+import { DownloadReportButton } from '@/app/dashboard/reports/[id]/DownloadReportButton'
+import { createServerClient } from '@supabase/ssr'
+import { DownloadIcon } from 'lucide-react'
 import moment from 'moment'
+import 'moment/locale/pt-br'
+import { cookies } from 'next/headers'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
-import { createServerComponentClient } from '@supabase/auth-helpers-nextjs'
-import { Database } from '@/lib/database.types'
-import { cookies } from 'next/headers'
-import { DownloadReportButton } from '@/app/dashboard/reports/[id]/DownloadReportButton'
-import { DownloadIcon } from 'lucide-react'
 
 export const dynamic = 'force-dynamic'
 const Report = async ({ params }: { params: { id: string } }) => {
-  const supabase = createServerComponentClient<Database>({ cookies })
+  const cookieStore = cookies()
+
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        get(name: string) {
+          return cookieStore.get(name)?.value
+        },
+      },
+    },
+  )
 
   const { data: report, error } = await supabase
     .from('report')

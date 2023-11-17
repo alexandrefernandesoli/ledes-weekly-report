@@ -4,12 +4,13 @@ import { ProjectType } from '@/app/dashboard/project/[id]/page'
 import { Button } from '@/components/Button'
 import { TextInput } from '@/components/TextInput'
 import * as Dialog from '@radix-ui/react-dialog'
+import * as Tooltip from '@radix-ui/react-tooltip'
 import { ListXIcon, UsersIcon, XIcon } from 'lucide-react'
-import { useState } from 'react'
+import moment from 'moment'
+import { useEffect, useState } from 'react'
 import NotificationToast from './NotificationToast'
 import { addMemberAction } from './actions'
-import moment from 'moment'
-import * as Tooltip from '@radix-ui/react-tooltip'
+import clsx from 'clsx'
 
 export const MembersModal = ({
   project,
@@ -26,7 +27,20 @@ export const MembersModal = ({
     'success',
   )
   const [memberEmail, setMemberEmail] = useState('')
-  const [members, setMembers] = useState(project.profile)
+  const [members, setMembers] = useState(
+    project.profile.map((member) => ({
+      ...member,
+      role: member.project_member.find(
+        (projectMember) => projectMember.project_id === project.id,
+      )?.role,
+    })),
+  )
+
+  console.log({ project })
+
+  useEffect(() => {
+    if (!open) setIsNotificationOpen(false)
+  }, [open])
 
   const addNewMember = async () => {
     const { member, error } = await addMemberAction({
@@ -66,7 +80,7 @@ export const MembersModal = ({
       </Dialog.Trigger>
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 z-50 bg-gray-900 bg-opacity-10 data-[state=open]:animate-overlayShow" />
-        <Dialog.Content className="fixed left-1/2 top-1/2 z-50 flex w-[95vw] -translate-x-1/2 -translate-y-1/2 flex-col gap-2 rounded-lg bg-gray-50 p-3 data-[state=open]:animate-contentShow md:w-[750px] md:p-6">
+        <Dialog.Content className="fixed left-1/2 top-1/2 z-50 flex w-[95vw] -translate-x-1/2 -translate-y-1/2 flex-col gap-2 rounded-lg bg-gray-50 p-3 data-[state=open]:animate-contentShow md:w-[800px] md:p-6">
           <div className="flex items-center justify-between">
             <Dialog.Title className="text-2xl text-gray-900">
               Membros
@@ -102,41 +116,63 @@ export const MembersModal = ({
           ) : null}
 
           <div className="w-full">
-            {/* A members table that display id, name and email */}
             <table className="w-full border-separate border-spacing-2 text-sm">
               <thead>
                 <tr>
                   <th className="text-left">Nome</th>
-                  <th className="hidden text-left md:table-cell">Email</th>
+                  <th className="hidden text-left sm:table-cell">Email</th>
                   <th className="hidden text-left md:table-cell">
                     Membro Desde
                   </th>
-                  <th></th>
+                  <th className="hidden text-left md:table-cell">Cargo</th>
                 </tr>
               </thead>
               <tbody>
                 {members?.map((member) => (
-                  <tr key={member.id} className="bg-gray-100">
-                    <td className="p-2">{member.name}</td>
-                    <td className="hidden p-2 md:table-cell">{member.email}</td>
-                    <td className="hidden p-2 md:table-cell">
+                  <tr key={member.id}>
+                    <td className="py-1">{member.name}</td>
+                    <td className="hidden sm:table-cell">{member.email}</td>
+                    <td className="hidden md:table-cell">
                       {moment(member.created_at).format('DD/MM/YYYY')}
                     </td>
-                    <td>
-                      <Tooltip.Provider>
-                        <Tooltip.Root>
-                          <Tooltip.Trigger className="flex h-full w-full items-center justify-center">
-                            <ListXIcon className="text-red-800" />
-                          </Tooltip.Trigger>
-                          <Tooltip.Content className="flex flex-col rounded-lg bg-gray-50 p-2 shadow-md">
-                            <span className="text-xs text-red-800">
-                              Remover
-                            </span>
-                            <Tooltip.Arrow className="fill-white" />
-                          </Tooltip.Content>
-                        </Tooltip.Root>
-                      </Tooltip.Provider>
+                    <td className="hidden md:table-cell">
+                      <span
+                        className={clsx(
+                          'rounded-full px-2 py-1 text-sm',
+                          member.role === 'STUDENT'
+                            ? 'bg-green-100 text-green-700'
+                            : member.role === 'SUPERVISOR'
+                            ? 'bg-blue-100 text-blue-700'
+                            : 'bg-red-100 text-red-700',
+                        )}
+                      >
+                        {member.role === 'STUDENT'
+                          ? 'Estudante'
+                          : member.role === 'SUPERVISOR'
+                          ? 'Supervisor'
+                          : 'Administrador'}
+                      </span>
                     </td>
+                    {isSupervisor && (
+                      <td>
+                        <Tooltip.Provider>
+                          <Tooltip.Root>
+                            <Tooltip.Trigger
+                              onClick={() => console.log('xd')}
+                              className="flex h-full w-full items-center justify-center"
+                            >
+                              <ListXIcon className="text-red-800" />
+                            </Tooltip.Trigger>
+                            <Tooltip.Content className="flex flex-col rounded-lg bg-gray-50 p-2 shadow-md">
+                              <span className="text-xs text-red-800">
+                                Remover
+                              </span>
+                              <Tooltip.Arrow className="fill-white" />
+                            </Tooltip.Content>
+                          </Tooltip.Root>
+                        </Tooltip.Provider>
+                      </td>
+                    )}
                   </tr>
                 ))}
               </tbody>
