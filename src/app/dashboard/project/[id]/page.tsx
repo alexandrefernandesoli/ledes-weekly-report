@@ -1,23 +1,40 @@
 import { ProjectPrefModal } from '@/app/dashboard/project/[id]/ProjectPrefModal'
 import { Database } from '@/lib/database.types'
 import { CalendarIcon, UserIcon } from '@heroicons/react/24/outline'
-import { createServerComponentClient } from '@supabase/auth-helpers-nextjs'
+import { createServerClient } from '@supabase/ssr'
+import { SupabaseClient } from '@supabase/supabase-js'
 import { Eye, Plus } from 'lucide-react'
 import moment from 'moment'
 import { cookies } from 'next/headers'
 import Link from 'next/link'
 import { MembersModal } from './MembersModal'
-import { SupabaseClient } from '@supabase/supabase-js'
 
 export const dynamic = 'force-dynamic'
 const Project = async ({ params }: { params: { id: string } }) => {
-  const supabase = createServerComponentClient<Database>({
-    cookies,
-  })
+  const cookieStore = cookies()
+
+  const supabase = createServerClient<Database>(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        get(name: string) {
+          return cookieStore.get(name)?.value
+        },
+      },
+    },
+  )
 
   const {
     data: { session },
   } = await supabase.auth.getSession()
+
+  const { data: userData } = await supabase
+    .from('profile')
+    .select('*')
+    .eq('id', session!.user.id)
+    .limit(1)
+    .single()
 
   const { data: myProject } = await supabase
     .from('project_member')
@@ -31,7 +48,7 @@ const Project = async ({ params }: { params: { id: string } }) => {
     return null
   }
 
-  const project = await getProjectDetails(myProject, supabase)
+  const project = await getProjectDetails(myProject, userData, supabase)
 
   if (!project) {
     return null
@@ -52,10 +69,12 @@ const Project = async ({ params }: { params: { id: string } }) => {
           Novo relatório
         </Link>
         <MembersModal
-          isSupervisor={myProject.role === 'SUPERVISOR'}
+          isSupervisor={
+            myProject.role === 'SUPERVISOR' || userData?.role === 'ADMIN'
+          }
           project={project}
         />
-        {myProject.role === 'SUPERVISOR' && (
+        {(myProject.role === 'SUPERVISOR' || userData?.role === 'ADMIN') && (
           <ProjectPrefModal project={project} />
         )}
       </div>
@@ -70,7 +89,9 @@ const Project = async ({ params }: { params: { id: string } }) => {
 }
 
 export type ProjectType = Database['public']['Tables']['project']['Row'] & {
-  profile: Database['public']['Tables']['profile']['Row'][]
+  profile: (Database['public']['Tables']['profile']['Row'] & {
+    project_member: Database['public']['Tables']['project_member']['Row'][]
+  })[]
   report: (Database['public']['Tables']['report']['Row'] & {
     profile: Database['public']['Tables']['profile']['Row'] | null
   })[]
@@ -78,12 +99,13 @@ export type ProjectType = Database['public']['Tables']['project']['Row'] & {
 
 const getProjectDetails = async (
   myProject: Database['public']['Tables']['project_member']['Row'],
+  userData: Database['public']['Tables']['profile']['Row'] | null,
   supabase: SupabaseClient<Database>,
 ): Promise<ProjectType | null> => {
-  if (myProject.role === 'SUPERVISOR') {
+  if (myProject.role === 'SUPERVISOR' || userData?.role === 'ADMIN') {
     const { data } = await supabase
       .from('project')
-      .select('*, profile(*), report(*, profile(*))')
+      .select('*, profile(*, project_member(*)), report(*, profile(*))')
       .eq('id', myProject.project_id)
       .limit(1)
       .single()
@@ -97,7 +119,7 @@ const getProjectDetails = async (
 
   const { data } = await supabase
     .from('project')
-    .select('*, profile(*), report(*, profile(*))')
+    .select('*, profile(*, project_member(*)), report(*, profile(*))')
     .eq('id', myProject.project_id)
     .eq('report.user_id', myProject.user_id)
     .limit(1)

@@ -2,6 +2,8 @@ import { jsPDF } from 'jspdf'
 import moment from 'moment/moment'
 import slugify from 'slugify'
 import { Database } from '@/lib/database.types'
+import 'moment/locale/pt-br'
+moment.locale('pt-br')
 
 type ReportType = Database['public']['Tables']['report']['Row'] & {
   project: Database['public']['Tables']['project']['Row'] | null
@@ -62,7 +64,7 @@ export const generatePDFDownload = (report: ReportType) => {
   const docName =
     slugify(
       `${moment(report.created_at).format(
-        'DD/MM/YYYY',
+        'YYYY/MM/DD',
       )} relatório ${report.project!.name!.toLowerCase()} `,
       '_',
     ) + '.pdf'

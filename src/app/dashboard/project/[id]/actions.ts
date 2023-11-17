@@ -1,7 +1,7 @@
 'use server'
 
 import { Database } from '@/lib/database.types'
-import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs'
+import { createServerClient, CookieOptions } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import { z } from 'zod'
 
@@ -11,9 +11,25 @@ export async function updateProjectAction(actionData: {
   description: string
   type: string
 }) {
-  const supabase = createRouteHandlerClient<Database>({
-    cookies,
-  })
+  const cookieStore = cookies()
+
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        get(name: string) {
+          return cookieStore.get(name)?.value
+        },
+        set(name: string, value: string, options: CookieOptions) {
+          cookieStore.set({ name, value, ...options })
+        },
+        remove(name: string, options: CookieOptions) {
+          cookieStore.set({ name, value: '', ...options })
+        },
+      },
+    },
+  )
 
   const {
     data: { session },
@@ -60,22 +76,40 @@ export async function addMemberAction(actionData: {
   projectId: string
   email: string
 }) {
-  const supabase = createRouteHandlerClient<Database>({ cookies })
+  const cookieStore = cookies()
+
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        get(name: string) {
+          return cookieStore.get(name)?.value
+        },
+        set(name: string, value: string, options: CookieOptions) {
+          cookieStore.set({ name, value, ...options })
+        },
+        remove(name: string, options: CookieOptions) {
+          cookieStore.set({ name, value: '', ...options })
+        },
+      },
+    },
+  )
 
   const {
     data: { session },
   } = await supabase.auth.getSession()
 
   if (!session) {
-    throw Error('Unauthorized')
+    return { member: null, error: 'Não autorizado.' }
   }
 
   const { data: myProject } = await supabase
     .from('project_member')
     .select('*')
     .eq('project_id', actionData.projectId)
-    .eq('role', 'SUPERVISOR')
     .eq('user_id', session.user.id)
+    .eq('role', 'SUPERVISOR')
     .limit(1)
     .single()
 
@@ -120,9 +154,25 @@ export async function addReportAction(actionData: {
   projectId: string
   content: { tasksThisWeek: string[]; tasksNextWeek: string[] }
 }) {
-  const supabase = createRouteHandlerClient<Database>({
-    cookies,
-  })
+  const cookieStore = cookies()
+
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        get(name: string) {
+          return cookieStore.get(name)?.value
+        },
+        set(name: string, value: string, options: CookieOptions) {
+          cookieStore.set({ name, value, ...options })
+        },
+        remove(name: string, options: CookieOptions) {
+          cookieStore.set({ name, value: '', ...options })
+        },
+      },
+    },
+  )
 
   const {
     data: { session },
@@ -151,7 +201,7 @@ export async function addReportAction(actionData: {
     .single()
 
   if (!data) {
-    return { report: null, error: error.message }
+    return { report: null, error: error?.message }
   }
 
   const { data: report } = await supabase
