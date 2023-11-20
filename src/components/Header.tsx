@@ -27,7 +27,7 @@ export const Header = () => {
     if (error) {
       window.alert(error.message)
     } else {
-      router.push('/login')
+      router.refresh()
     }
   }
 
@@ -41,14 +41,6 @@ export const Header = () => {
       </Link>
 
       <div className="flex-column flex items-center justify-center gap-2">
-        {/* {user && user.role === UserRole.ADMIN ? (
-          <Link href="/dashboard/admin">
-            <ShieldCheckIcon className="h-8 w-8 cursor-pointer  text-red-700 transition-colors hover:text-red-600" />
-          </Link>
-        ) : (
-          <></>
-        )} */}
-
         <DropdownMenu.Root>
           <DropdownMenu.Trigger asChild>
             <Avatar.Root className="flex h-12 w-12 cursor-pointer items-center justify-center rounded-full bg-gray-200">

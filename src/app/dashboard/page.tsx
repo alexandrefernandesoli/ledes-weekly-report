@@ -6,9 +6,9 @@ import { cookies } from 'next/headers'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { LastReportTooltip } from './LastReportTooltip'
-import { Database } from '@/lib/database.types'
 
 export const dynamic = 'force-dynamic'
+
 const Page = async () => {
   const cookieStore = cookies()
 

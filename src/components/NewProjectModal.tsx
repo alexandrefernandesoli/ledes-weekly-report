@@ -1,13 +1,12 @@
 'use client'
 
+import { createProjectAction } from '@/app/dashboard/actions'
 import { PlusIcon } from '@heroicons/react/24/outline'
 import * as Dialog from '@radix-ui/react-dialog'
-import axios from 'axios'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { HiOutlineX } from 'react-icons/hi'
 import { TextInput } from './TextInput'
-import { createProjectAction } from '@/app/dashboard/actions'
 
 export const NewProjectModal = () => {
   const [open, setOpen] = useState(false)
@@ -19,8 +18,6 @@ export const NewProjectModal = () => {
 
   const newProject = async () => {
     if (projectName.trim() === '' || projectDescription.trim() === '') return
-
-    console.log('chamado')
 
     const { project, error } = await createProjectAction({
       name: projectName,

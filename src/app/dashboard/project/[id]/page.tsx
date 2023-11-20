@@ -8,6 +8,7 @@ import moment from 'moment'
 import { cookies } from 'next/headers'
 import Link from 'next/link'
 import { MembersModal } from './MembersModal'
+import { redirect } from 'next/navigation'
 
 export const dynamic = 'force-dynamic'
 const Project = async ({ params }: { params: { id: string } }) => {
@@ -36,19 +37,7 @@ const Project = async ({ params }: { params: { id: string } }) => {
     .limit(1)
     .single()
 
-  const { data: myProject } = await supabase
-    .from('project_member')
-    .select('*')
-    .eq('project_id', params.id)
-    .eq('user_id', session!.user.id)
-    .limit(1)
-    .single()
-
-  if (!myProject) {
-    return null
-  }
-
-  const project = await getProjectDetails(myProject, userData, supabase)
+  const project = await getProjectDetails(params.id, userData, supabase)
 
   if (!project) {
     return null
@@ -70,11 +59,11 @@ const Project = async ({ params }: { params: { id: string } }) => {
         </Link>
         <MembersModal
           isSupervisor={
-            myProject.role === 'SUPERVISOR' || userData?.role === 'ADMIN'
+            project.role === 'SUPERVISOR' || userData?.role === 'ADMIN'
           }
           project={project}
         />
-        {(myProject.role === 'SUPERVISOR' || userData?.role === 'ADMIN') && (
+        {(project.role === 'SUPERVISOR' || userData?.role === 'ADMIN') && (
           <ProjectPrefModal project={project} />
         )}
       </div>
@@ -95,18 +84,32 @@ export type ProjectType = Database['public']['Tables']['project']['Row'] & {
   report: (Database['public']['Tables']['report']['Row'] & {
     profile: Database['public']['Tables']['profile']['Row'] | null
   })[]
+} & {
+  role: string
 }
 
 const getProjectDetails = async (
-  myProject: Database['public']['Tables']['project_member']['Row'],
+  projectId: string,
   userData: Database['public']['Tables']['profile']['Row'] | null,
   supabase: SupabaseClient<Database>,
 ): Promise<ProjectType | null> => {
-  if (myProject.role === 'SUPERVISOR' || userData?.role === 'ADMIN') {
+  const { data: myProject, error } = await supabase
+    .from('project_member')
+    .select('*')
+    .eq('project_id', projectId)
+    .eq('user_id', userData!.id)
+    .limit(1)
+    .single()
+
+  if (!myProject && userData?.role !== 'ADMIN') {
+    redirect('/dashboard')
+  }
+
+  if (myProject?.role === 'SUPERVISOR' || userData?.role === 'ADMIN') {
     const { data } = await supabase
       .from('project')
       .select('*, profile(*, project_member(*)), report(*, profile(*))')
-      .eq('id', myProject.project_id)
+      .eq('id', projectId)
       .limit(1)
       .single()
 
@@ -114,14 +117,14 @@ const getProjectDetails = async (
       (a, b) => Date.parse(b.created_at) - Date.parse(a.created_at),
     )
 
-    return data
+    return { ...data!, role: myProject?.role || 'ADMIN' }
   }
 
   const { data } = await supabase
     .from('project')
     .select('*, profile(*, project_member(*)), report(*, profile(*))')
-    .eq('id', myProject.project_id)
-    .eq('report.user_id', myProject.user_id)
+    .eq('id', projectId)
+    .eq('report.user_id', userData!.id)
     .limit(1)
     .single()
 
@@ -129,7 +132,9 @@ const getProjectDetails = async (
     (a, b) => Date.parse(b.created_at) - Date.parse(a.created_at),
   )
 
-  return data
+  console.log({ data })
+
+  return { ...data!, role: myProject?.role || 'ADMIN' }
 }
 
 type ReportType = (Database['public']['Tables']['report']['Row'] & {

@@ -52,37 +52,45 @@ export default async function Reports() {
           </div>
           <div></div>
         </div>
-        {reports.map((report, index) => (
-          <div
-            key={report.id}
-            className={clsx(
-              'grid grid-cols-[1fr,1fr,20px] px-4 py-3 md:grid-cols-[1fr,1fr,180px]',
-              index % 2 === 1 && 'bg-zinc-200/50',
-            )}
-          >
-            <Link
-              className="flex w-fit items-center justify-center hover:underline"
-              href={`/dashboard/project/${report.project!.id}`}
+        {reports.length > 0 ? (
+          reports.map((report, index) => (
+            <div
+              key={report.id}
+              className={clsx(
+                'grid grid-cols-[1fr,1fr,20px] px-4 py-3 md:grid-cols-[1fr,1fr,180px]',
+                index % 2 === 1 && 'bg-zinc-200/50',
+              )}
             >
-              {report.project!.name}
-            </Link>
-            <div className="flex flex-col justify-center leading-none">
-              <span className="font-semibold">
-                {moment(report.created_at).format('DD/MM/YYYY')}
-              </span>
-              <span className="text-sm">
-                {moment(report.created_at).format('hh:mm:ss')}
-              </span>
+              <Link
+                className="flex w-fit items-center justify-center hover:underline"
+                href={`/dashboard/project/${report.project!.id}`}
+              >
+                {report.project?.name}
+              </Link>
+              <div className="flex flex-col justify-center leading-none">
+                <span className="font-semibold">
+                  {moment(report.created_at).format('DD/MM/YYYY')}
+                </span>
+                <span className="text-sm">
+                  {moment(report.created_at).format('hh:mm:ss')}
+                </span>
+              </div>
+              <Link
+                className="flex w-fit items-center justify-center gap-1 rounded-lg px-1 leading-none transition-all hover:bg-black/5"
+                href={`/dashboard/reports/${report.id}`}
+              >
+                <EyeIcon />
+                <div className="hidden md:inline-block">
+                  Visualizar relatório
+                </div>
+              </Link>
             </div>
-            <Link
-              className="flex w-fit items-center justify-center gap-1 rounded-lg px-1 leading-none transition-all hover:bg-black/5"
-              href={`/dashboard/reports/${report.id}`}
-            >
-              <EyeIcon />
-              <div className="hidden md:inline-block">Visualizar relatório</div>
-            </Link>
+          ))
+        ) : (
+          <div className="bg-gray-200/50 p-2 text-center">
+            {'Você ainda não submeteu um relatório!'}
           </div>
-        ))}
+        )}
       </div>
     </div>
   )

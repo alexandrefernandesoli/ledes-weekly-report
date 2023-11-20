@@ -1,34 +1,58 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Ledes Weekly Report
 
-## Getting Started
+Bem-vindo ao projeto Ledes Weekly Report! Este é um projeto de TCC que utiliza o Supabase como banco de dados e o Next.js como framework front-end. Antes de começar, siga as instruções abaixo para configurar o ambiente e iniciar o projeto.
 
-First, run the development server:
+## Configuração do Ambiente
 
-```bash
-npm run dev
-# or
-yarn dev
+1. Crie um arquivo chamado `.env` na raiz do projeto.
+2. Acesse o painel do Supabase e obtenha as credenciais necessárias para preencher o arquivo `.env`. Você encontrará essas informações na seção de configurações do projeto.
+
+```env
+NEXT_PUBLIC_SUPABASE_URL==sua_url_do_supabase
+NEXT_PUBLIC_SUPABASE_ANON_KEY=sua_chave_de_api
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `pages/index.tsx`. The page auto-updates as you edit the file.
+## Inicialização do Projeto
 
-[API routes](https://nextjs.org/docs/api-routes/introduction) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.ts`.
+1. Utilize o SQL editor disponível no painel do Supabase para executar o script SQL de esquema localizado em ``/supabase/schema.sql`` no seu banco de dados. Isso criará a estrutura necessária para o projeto.
+2. Ainda no painel do Supabase, execute o seguinte script:
+```
+create or replace function public.handle_new_user()
+returns trigger as $$
+begin
+  insert into public.profile (id, email, name)
+  values (new.id, new.email, new.raw_user_meta_data->>'name');
+  return new;
+end;
+$$ language plpgsql security definer;
+create or replace trigger on_auth_user_created
+  after insert on auth.users
+  for each row execute procedure public.handle_new_user();
+```
+3. Agora, você está pronto para iniciar o projeto Ledes Weekly Report utilizando o Next.js! Execute os seguintes comandos:
 
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/api-routes/introduction) instead of React pages.
+```
+# Instale as dependências
+npm install
 
-## Learn More
+# Inicie o servidor de desenvolvimento
+npm run dev
 
-To learn more about Next.js, take a look at the following resources:
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Instruções adicionais para deploy na Vercel (opcional):
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+Caso deseje fazer o deploy na Vercel, siga estas instruções:
 
-## Deploy on Vercel
+1. Certifique-se de ter uma conta na Vercel (https://vercel.com/).
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+2. Instale a CLI da Vercel globalmente, se ainda não tiver:
+```
+npm install -g vercel
+```
+3.  Execute o comando de deploy na raiz do projeto:
+```
+vercel
+```
+4.  Siga as instruções para configurar o projeto na Vercel.

@@ -63,10 +63,6 @@ export default async function Profile() {
           <p className="text-gray-500">{session?.user.email}</p>
         </div>
       </div>
-      <div className="w-full border-b border-dotted"></div>
-      <div className="pt-4">
-        <h1 className="text-2xl">Meus projetos</h1>
-      </div>
     </>
   )
 }

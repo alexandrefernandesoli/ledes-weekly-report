@@ -9,7 +9,7 @@ import { ListXIcon, UsersIcon, XIcon } from 'lucide-react'
 import moment from 'moment'
 import { useEffect, useState } from 'react'
 import NotificationToast from './NotificationToast'
-import { addMemberAction } from './actions'
+import { addMemberAction, removeMemberAction } from './actions'
 import clsx from 'clsx'
 
 export const MembersModal = ({
@@ -27,7 +27,7 @@ export const MembersModal = ({
     'success',
   )
   const [memberEmail, setMemberEmail] = useState('')
-  const [members, setMembers] = useState(
+  const [members, setMembers] = useState<any>(
     project.profile.map((member) => ({
       ...member,
       role: member.project_member.find(
@@ -67,7 +67,37 @@ export const MembersModal = ({
 
     setIsNotificationOpen(true)
 
-    setMembers((members) => [...members!, member!])
+    setMembers((members: any) => [...members!, member!])
+  }
+
+  const removeMember = async (userId: string) => {
+    const { success, error } = await removeMemberAction({
+      projectId: project.id,
+      userId,
+    })
+
+    if (error) {
+      setNotificationTitle('Erro')
+      console.log(error)
+      setNotificationMessage(
+        error || 'Ocorreu um erro, tente novamente mais tarde.',
+      )
+      setNotificationType('error')
+
+      setIsNotificationOpen(true)
+
+      return
+    }
+
+    setNotificationTitle('Sucesso')
+    setNotificationMessage('Membro removido com sucesso!')
+    setNotificationType('success')
+
+    setIsNotificationOpen(true)
+
+    setMembers((members: any[]) =>
+      members.filter((member: any) => member.id !== userId),
+    )
   }
 
   return (
@@ -128,7 +158,7 @@ export const MembersModal = ({
                 </tr>
               </thead>
               <tbody>
-                {members?.map((member) => (
+                {members?.map((member: any) => (
                   <tr key={member.id}>
                     <td className="py-1">{member.name}</td>
                     <td className="hidden sm:table-cell">{member.email}</td>
@@ -158,7 +188,7 @@ export const MembersModal = ({
                         <Tooltip.Provider>
                           <Tooltip.Root>
                             <Tooltip.Trigger
-                              onClick={() => console.log('xd')}
+                              onClick={() => removeMember(member.id)}
                               className="flex h-full w-full items-center justify-center"
                             >
                               <ListXIcon className="text-red-800" />

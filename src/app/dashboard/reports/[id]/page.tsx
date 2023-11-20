@@ -6,6 +6,7 @@ import 'moment/locale/pt-br'
 import { cookies } from 'next/headers'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
+moment.locale('pt-br')
 
 export const dynamic = 'force-dynamic'
 const Report = async ({ params }: { params: { id: string } }) => {
@@ -38,8 +39,6 @@ const Report = async ({ params }: { params: { id: string } }) => {
     tasksThisWeek: string[]
     tasksNextWeek: string[]
   }
-
-  moment.locale('pt-br')
 
   return (
     <>
