@@ -50,6 +50,7 @@ const Page = async () => {
       .from('project_member')
       .select('*, project(report(created_at), *)')
       .eq('user_id', session.user.id)
+      .eq('project.report.user_id', session.user.id)
 
     projects = fetchedProjects?.map((project) => project.project)
   }
@@ -57,8 +58,6 @@ const Page = async () => {
   if (!userData) {
     throw new Error('User data not found')
   }
-
-  console.log(projects)
 
   return (
     <>

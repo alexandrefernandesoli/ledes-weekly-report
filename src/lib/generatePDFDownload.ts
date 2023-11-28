@@ -18,7 +18,7 @@ export const generatePDFDownload = (report: ReportType) => {
     floatPrecision: 16, // or "smart", default is 16
   })
 
-  const reportDate = moment(report.created_at).format('LLLL')
+  const reportDate = moment(report.created_at).local().format('LLLL')
 
   let currentLine = 25
   doc.setFontSize(28)

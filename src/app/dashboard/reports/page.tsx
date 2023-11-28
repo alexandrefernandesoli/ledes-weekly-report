@@ -69,10 +69,10 @@ export default async function Reports() {
               </Link>
               <div className="flex flex-col justify-center leading-none">
                 <span className="font-semibold">
-                  {moment(report.created_at).format('DD/MM/YYYY')}
+                  {moment(report.created_at).local().format('DD/MM/YYYY')}
                 </span>
                 <span className="text-sm">
-                  {moment(report.created_at).format('hh:mm:ss')}
+                  {moment(report.created_at).local().format('HH:mm:ss')}
                 </span>
               </div>
               <Link

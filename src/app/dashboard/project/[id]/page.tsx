@@ -170,10 +170,10 @@ const ReportsList = ({ reports }: { reports: ReportType }) => {
               </div>
               <div className="flex flex-col justify-center px-3 py-2 text-sm leading-tight text-gray-900 md:px-4 md:py-3">
                 <span className="font-semibold">
-                  {moment(report.created_at).format('DD/MM/YYYY')}
+                  {moment(report.created_at).local().format('DD/MM/YYYY')}
                 </span>
                 <span className="text-gray-700">
-                  {moment(report.created_at).format('HH:mm:ss')}
+                  {moment(report.created_at).local().format('HH:mm:ss')}
                 </span>
               </div>
               <div className="flex justify-end gap-1 px-3 py-2 text-sm  font-light text-gray-900">

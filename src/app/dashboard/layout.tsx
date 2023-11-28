@@ -1,6 +1,6 @@
 import { ReactNode } from 'react'
 import { cookies } from 'next/headers'
-import { redirect } from 'next/navigation'
+import { RedirectType, redirect } from 'next/navigation'
 import { Header } from '@/components/Header'
 import { createServerClient } from '@supabase/ssr'
 
@@ -24,7 +24,7 @@ export default async function Layout({ children }: { children: ReactNode }) {
     data: { session },
   } = await supabase.auth.getSession()
 
-  if (!session) redirect('/login')
+  if (!session) redirect('/login', RedirectType.replace)
 
   return (
     <>

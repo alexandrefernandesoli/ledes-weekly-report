@@ -54,7 +54,7 @@ const Report = async ({ params }: { params: { id: string } }) => {
           </div>
           <div>
             <strong>Data de submissão: </strong>
-            {moment(report.created_at).format('LLLL')}
+            {moment(report.created_at).local().format('LLLL')}
           </div>
         </div>
         <div>
